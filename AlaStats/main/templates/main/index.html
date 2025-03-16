@@ -3,6 +3,10 @@
 Название
 {% endblock %}
 
+{% load static %}
+{% block css %}
+"{% static 'main/index.css' %}"
+{% endblock %}
 {% block content %}
     <main>
         <section class="stat-summary">
