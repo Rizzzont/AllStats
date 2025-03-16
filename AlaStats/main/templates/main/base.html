@@ -8,27 +8,31 @@
     <link rel="stylesheet" href="{% static 'main/style.css' %}">
 </head>
 <body>
-    <header>
-        <div class="logo">AlaStats</div>
-        <nav>
-            <ul>
-                <li><a href="{% url 'main' %}">Главная</a></li>
-                <li><a href="{% url 'analytics' %}">Аналитика</a></li>
-                <li><a href="{% url 'recomendations' %}">Рекомендации ИИ</a></li>
-                <li><a href="{% url 'private_requests' %}">Частные запросы</a></li>
-            </ul>
-        </nav>
-        <div class="auth">
-            <a href="#">Выход</a>
-        </div>
-    </header>
+    <div class="wrapper">
+        <header>
+            <div class="logo">AlaStats</div>
+            <nav>
+                <ul>
+                    <li><a href="{% url 'main' %}">Главная</a></li>
+                    <li><a href="{% url 'analytics' %}">Аналитика</a></li>
+                    <li><a href="{% url 'recomendations' %}">Рекомендации ИИ</a></li>
+                    <li><a href="{% url 'private_requests' %}">Частные запросы</a></li>
+                </ul>
+            </nav>
+            <div class="auth">
+                <a href="#">Выход</a>
+            </div>
+        </header>
 
-    {% block content %}{% endblock %}
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
 
-    <footer>
-        <div class="footer-links">
-            <a href="#">Социальные сети</a> | <a href="#">Контакты</a>
-        </div>
-    </footer>
+        <footer>
+            <div class="footer-links">
+                <a href="https://t.me/+7j39zEbXCDZmMjU6">Социальные сети</a> | <a href="https://t.me/+7j39zEbXCDZmMjU6">Контакты</a>
+            </div>
+        </footer>
+    </div>
 </body>
 </html>

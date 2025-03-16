@@ -9,6 +9,11 @@ body {
     font-family: 'Arial', sans-serif;
     background-color: #f9f9f9;
     color: #333;
+    height: 100%;
+}
+
+html {
+    height: 100%;
 }
 
 header {
@@ -45,7 +50,7 @@ header .auth a {
 
 /* Основной контент */
 main {
-    padding: 40px 30px;
+    padding: 10px 10px;
 }
 
 .stat-summary {
@@ -87,10 +92,10 @@ main {
 
 .chart {
     background-color: #fff;
-    padding: 20px;
+    padding: 10px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 48%;
+    width: 50%;
 }
 
 .chart h3 {
@@ -100,7 +105,7 @@ main {
 
 .chart-box {
     background-color: #e3e3e3;
-    height: 200px;
+    height: 250px;
     border-radius: 8px;
     display: flex;
     justify-content: center;
@@ -152,14 +157,11 @@ main {
     background-color: #7702d7;
 }
 
-/* Подвал */
 footer {
     background-color: #333;
     color: white;
     text-align: center;
-    padding: 15px;
-    position: relative;
-    bottom: 0;
+    padding: 1px;
     width: 100%;
 }
 
@@ -176,6 +178,16 @@ footer .footer-links a {
 
 footer .footer-links a:hover {
     text-decoration: underline;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.content {
+    flex: 1;
 }
 
 /* Адаптивность */

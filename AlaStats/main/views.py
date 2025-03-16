@@ -1,38 +1,23 @@
-from django.shortcuts import render
-import pandas as pd
 from django.core.files.storage import FileSystemStorage
-
-
-class TotalProfit:
-    def __init__(self, dataframe):
-        self.dataframe = dataframe
-
-    def get_results(self):
-        total = 0
-        for index, row in self.dataframe.iterrows():
-            total += int(row["Заказали на сумму, ₽"])
-        return total
+from django.shortcuts import render
+from .total_profit import TotalProfit
+import pandas as pd
 
 
 def index(request):
-    total_profit = None  # По умолчанию
+    totalprofit = 0
 
     if request.method == "POST" and request.FILES.get("file"):
         file = request.FILES["file"]
         fs = FileSystemStorage()
-        filename = fs.save(file.name, file)  # Сохраняем файл
-        filepath = fs.path(filename)  # Получаем путь к файлу
+        filename = fs.save(file.name, file)
+        filepath = fs.path(filename)
 
-        # Читаем Excel
-        df = pd.read_excel(filepath, sheet_name="Товары")
-
-        # Считаем сумму
+        df = pd.read_excel(filepath, usecols=["Выкупили на сумму, ₽"])
         tp = TotalProfit(df)
-        total_profit = tp.get_results()
+        totalprofit = tp.get_results()
 
-    return render(request, ("main/index.html"), {"total_profit": total_profit})
-
-
+    return render(request, "main/index.html", {"total_profit": totalprofit})
 def analytics(request):
     return render(request, ("main/analytics.html"))
 
