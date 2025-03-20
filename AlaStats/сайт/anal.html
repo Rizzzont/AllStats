@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlaStats</title>
+    <link rel="stylesheet" href="anal_style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="container_section container">       
+            <div class="nav_left">AlaStats</div>
+            <div class="nav_right">
+                <ul class="nav_list">
+                    <li class="nav_list_item"><a href="index.html">Главная</a></li>
+                    <li class="nav_list_item"><a href="anal.html">Аналитика</a></li>
+                    <li class="nav_list_item"><a href="rec.html">Рекомендации ИИ</a></li>
+                    <li class="nav_list_item"><a href="frequent.html">Частые запросы</a></li>
+                    <li class="nav_list_item"><a href="login.html"><span class="login">Вход</span></a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    
+    <div class="container container_height">
+        <main class="graphs">
+            <div class="graph graph_diz">
+                <h3>Артикул дизайнера за 12 месяцев</h3>
+                <div class="chart-container">
+                    <canvas id="chartDiz"></canvas>
+                    <canvas id="pieDiz"></canvas>
+                </div>
+                <div class="chart-controls">
+                    <button onclick="toggleChart('chartDiz')">Переключить</button>
+                </div>
+            </div>
+
+            <div class="graph graph_dizs">
+                <h3>Артикулы дизайнеров за 12 месяцев</h3>
+                <div class="chart-container">
+                    <canvas id="chartDizs"></canvas>
+                    <canvas id="pieDizs"></canvas>
+                </div>
+                <div class="chart-controls">
+                    <button onclick="toggleChart('chartDizs')">Переключить</button>
+                </div>
+            </div>
+
+            <div class="graph graph_category">
+                <h3>Категория за 12 месяцев</h3>
+                <div class="chart-container">
+                    <canvas id="chartCategory"></canvas>
+                    <canvas id="pieCategory"></canvas>
+                </div>
+                <div class="chart-controls">
+                    <button onclick="toggleChart('chartCategory')">Переключить</button>
+                </div>
+            </div>
+
+            <div class="graph graph_categorys">
+                <h3>Категории за 12 месяцев</h3>
+                <div class="chart-container">
+                    <canvas id="chartCategorys"></canvas>
+                    <canvas id="pieCategorys"></canvas>
+                </div>
+                <div class="chart-controls">
+                    <button onclick="toggleChart('chartCategorys')">Переключить</button>
+                </div>
+            </div>
+
+            <div class="graph graph_good">
+                <h3>Товар за 12 месяцев</h3>
+                <div class="chart-container">
+                    <canvas id="chartGood"></canvas>
+                    <canvas id="pieGood"></canvas>
+                </div>
+                <div class="chart-controls">
+                    <button onclick="toggleChart('chartGood')">Переключить</button>
+                </div>
+            </div>
+
+            <div class="graph graph_goods">
+                <h3>Товары за 12 месяцев</h3>
+                <div class="chart-container">
+                    <canvas id="chartGoods"></canvas>
+                    <canvas id="pieGoods"></canvas>
+                </div>
+                <div class="chart-controls">
+                    <button onclick="toggleChart('chartGoods')">Переключить</button>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="footer">
+            <div class="footer_content">
+                <span>VK | TG</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script2.js"></script>
+</body>
+</html>

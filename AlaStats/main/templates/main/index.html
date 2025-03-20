@@ -2,7 +2,6 @@
 {% block title %}
 Название
 {% endblock %}
-
 {% load static %}
 {% block css %}
 "{% static 'main/index.css' %}"
@@ -29,7 +28,7 @@
             </div>
         </section>
 
-    <h1>Загрузите Excel-файл</h1>
+    <h1 class="download_excel_title">Загрузите Excel-файл</h1>
 
     <form action="{% url 'main' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}

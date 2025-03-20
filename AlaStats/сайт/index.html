@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlaStats</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="container_section container">       
+            <div class="nav_left">AlaStats</div>
+            <div class="nav_right">
+                <ul class="nav_list">
+                    <li class="nav_list_item"><a href="">Главная</a></li>
+                    <li class="nav_list_item"><a href="anal.html">Аналитика</a></li>
+                    <li class="nav_list_item"><a href="">Рекомендации ИИ</a></li>
+                    <li class="nav_list_item"><a href="">Частые запросы</a></li>
+                    <li class="nav_list_item"><a href="#" onclick="openModal()"><span class="login">Вход</span></a></li>
+                </ul>
+            </div>   
+        </nav>
+    </header>
+    <div class="container container_height">
+        <main class="main">
+            <div class="main_left-wrapper">
+                <div class="card">
+                    <h2>Продано на сумму ₽</h2>
+                    <p>7 352 457</p>
+                </div>
+                <div class="card">
+                    <h2>Заказано Шт</h2>
+                    <p>4 457</p>
+                </div>
+                <div class="card">
+                    <h2>Средний рейтинг товаров</h2>
+                    <p>9.5</p>
+                </div>
+                <div class="card">
+                    <h2>Среднее время доставки</h2>
+                    <p>3 дня 22 часа</p>
+                </div>
+                <div class="card upload">
+                    <h2>Загрузка ZIP</h2>
+                    <button class="upload-btn">Выбрать файл</button>
+                    <input type="file" accept=".zip" hidden />
+                </div>
+            </div>
+            <div class="main_right-wrapper">
+                <div class="main_graph">
+                    <h2>График продаж</h2>
+                    <div class="chart-container">
+                        <canvas id="myBarChart"></canvas>
+                        <div class="chart-controls">
+                            <button onclick="updateChart('revenue')">Выручка</button>
+                            <button onclick="updateChart('sales')">Количество продаж</button>
+                        </div>                        
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="footer">
+            <div class="footer_content">
+                <span>VK | TG</span>
+                
+            </div>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Вход в систему</h2>
+            <form id="loginForm">
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="Введите email" required>
+                
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" placeholder="Введите пароль" required>
+    
+                <button type="submit">Войти</button>
+            </form>
+            <p id="loginError" class="error-message"></p>
+        </div>
+    </div>
+</body>
+</html>

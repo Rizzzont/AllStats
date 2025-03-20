@@ -1,0 +1,357 @@
+@charset "UTF-8";
+@import url(normalize.css);
+@import url(reset.css);
+
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  width: 90%;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+.container_height {
+  height: calc(100vh - 70px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+header {
+  background: linear-gradient(135deg, #b750be, #8e44ad);
+  padding: 15px 0;
+  color: white;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav_left {
+  font-size: 26px;
+}
+
+.nav_list {
+  display: flex;
+  list-style: none;
+  padding: 0;
+}
+
+.nav_list_item {
+  margin-right: 20px;
+}
+
+.nav_list_item a {
+  text-decoration: none;
+  color: white;
+  font-size: 18px;
+  transition: 0.3s;
+}
+
+.nav_list_item a:hover {
+  color: #ffcc00;
+}
+
+.main {
+  display: flex;
+  gap: 20px;
+}
+
+.main_left-wrapper {
+  width: 25%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card h2 {
+  margin: 0 0 10px;
+  font-size: 22px;
+  color: #333;
+  font-weight: bold;
+}
+
+.card p {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.upload {
+  text-align: center;
+}
+
+.upload-btn {
+  padding: 10px 15px;
+  background: #8e44ad;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.upload-btn:hover {
+  background: #b750be;
+}
+
+.main_right-wrapper {
+  width: 75%;
+  display: flex;
+  flex-direction: column;
+}
+
+.main_graph {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.chart-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.footer {
+  background: black;
+  color: white;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.scroll-to-top {
+  background: #ffcc00;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.chart-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.chart-controls button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #9148cd;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: 0.3s;
+}
+
+.chart-controls button:hover {
+  background-color: #7a3ba8;
+}
+
+/* Стили для графиков */
+.graphs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.graph {
+  flex: 1 1 48%; /* Два графика в ряд */
+  height: 400px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.graph_diz {
+  background-color: gray;
+}
+.graph_dizs {
+  background-color: rgb(228, 213, 51);
+}
+.graph_category {
+  background-color: rgb(92, 48, 202);
+}
+.graph_categorys {
+  background-color: rgb(255, 36, 36);
+}
+.graph_good {
+  background-color: rgb(44, 192, 110);
+}
+.graph_goods {
+  background-color: rgb(63, 43, 43);
+}
+
+/* Модальные окна */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 10;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  margin: 15% auto;
+  width: 300px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.close {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.modal input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal button {
+  width: 100%;
+  padding: 10px;
+  background-color: #9148cd;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: 0.3s;
+}
+
+.modal button:hover {
+  background-color: #7a3ba8;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+  .container {
+    max-width: 100%;
+    padding: 0 20px;
+  }
+
+  .main {
+    flex-direction: column;
+  }
+
+  .main_left-wrapper {
+    width: 100%;
+  }
+
+  .main_right-wrapper {
+    width: 100%;
+  }
+
+  .graph {
+    flex: 1 1 100%; /* Один график в ряд при уменьшении экрана */
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    width: 100%;
+    padding: 0 15px;
+  }
+
+  .nav_right {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    background: rgba(183, 80, 190, 0.95);
+    width: 100%;
+    left: 0;
+    top: 60px;
+    padding: 10px 0;
+    text-align: center;
+  }
+
+  .nav_right.active {
+    display: flex;
+  }
+
+  .nav_list {
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .nav_list_item {
+    margin: 10px 0;
+  }
+
+  .burger {
+    display: block;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .burger div {
+    width: 30px;
+    height: 3px;
+    background: white;
+    margin: 6px 0;
+  }
+
+  .main {
+    flex-direction: column;
+  }
+
+  .main_left-wrapper,
+  .main_right-wrapper {
+    width: 100%;
+  }
+
+  .graph {
+    flex: 1 1 100%;
+  }
+}
