@@ -39,15 +39,11 @@
 </head>
 <body>
     <h2>Авторизация</h2>
-    <form action="submit_login.php" method="POST">
-        <label for="username">Имя пользователя:</label>
-        <input type="text" id="username" name="username" required>
-
-        <label for="password">Пароль:</label>
-        <input type="password" id="password" name="password" required>
-
-        <input type="submit" value="Войти">
-    </form>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Войти</button>
+</form>
     <p>Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></p>
 </body>
 </html>
