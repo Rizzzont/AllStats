@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AlaStats</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{% static 'main/css/style.css'%}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -13,11 +14,11 @@
             <div class="nav_left">AlaStats</div>
             <div class="nav_right">
                 <ul class="nav_list">
-                    <li class="nav_list_item"><a href="">Главная</a></li>
-                    <li class="nav_list_item"><a href="anal.html">Аналитика</a></li>
-                    <li class="nav_list_item"><a href="">Рекомендации ИИ</a></li>
-                    <li class="nav_list_item"><a href="">Частые запросы</a></li>
-                    <li class="nav_list_item"><a href="#" onclick="openModal()"><span class="login">Вход</span></a></li>
+                    <li class="nav_list_item"><a href="{% url 'main' %}">Главная</a></li>
+                    <li class="nav_list_item"><a href="{% url 'analytics' %}">Аналитика</a></li>
+                    <li class="nav_list_item"><a href="{% url 'recomendations' %}">Рекомендации ИИ</a></li>
+                    <li class="nav_list_item"><a href="{% url 'private_requests' %}">Частые запросы</a></li>
+                    <li class="nav_list_item"><a href="{% url 'logout' %}"><span class="login">{{ user.username }} | Выход</span></a></li>
                 </ul>
             </div>   
         </nav>
@@ -67,7 +68,7 @@
             </div>
         </footer>
     </div>
-    <script src="script.js"></script>
+    <script src={% static "main/js/script.js" %}></script>
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>

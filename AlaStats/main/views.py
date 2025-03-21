@@ -1,28 +1,27 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
 from django.core.files.storage import FileSystemStorage
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
-from django.views.generic import CreateView
+
+from django.shortcuts import render
 
 from main.total_profit import TotalProfit
 import pandas as pd
 
 ROLES = ['Сотрудник', 'Директор']
 
+
 def group_required(min_group):
     def decorator(view_func):
         @login_required
         def _wrapped_view(request, *args, **kwargs):
-            user_groups = request.user.groups.values_list('name', flat=True)  # Получаем список групп пользователя
+            user_groups = request.user.groups.values_list('name', flat=True)
 
-            # Проверка, есть ли у пользователя группа на уровне min_group или выше
             if any(group in ROLES[ROLES.index(min_group):] for group in user_groups):
                 return view_func(request, *args, **kwargs)
             else:
-                return render(request, ("main/Confirmation.html"))
+                return render(request, "main/сonfirmation.html")
+
         return _wrapped_view
+
     return decorator
 
 
@@ -40,22 +39,22 @@ def index(request):
         tp = TotalProfit(df)
         totalprofit = tp.get_results()
 
-    return render(request, "main/index.html", {"total_profit": totalprofit})
+    return render(request, "main/main.html", {"total_profit": totalprofit})
 
 
 @group_required('Сотрудник')
 def analytics(request):
-    return render(request, ("main/analytics.html"))
+    return render(request, "main/anal.html")
 
 
 @group_required('Сотрудник')
 def recomendations(request):
-    return render(request, ("main/recomendations.html"))
+    return render(request, "main/recomendations.html")
 
 
 @group_required("Сотрудник")
 def private_requests(request):
-    return render(request, ("main/private_requests.html"))
+    return render(request, "main/private_requests.html")
 
 
 def custom_404_view(request, exception):

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlaStats</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css'%}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="container_section container">
+            <div class="nav_left">AlaStats</div>
+            <div class="nav_right">
+                <ul class="nav_list">
+                    <li class="nav_list_item"><a href="{% url 'main' %}">Главная</a></li>
+                    <li class="nav_list_item"><a href="{% url 'analytics' %}">Аналитика</a></li>
+                    <li class="nav_list_item"><a href="{% url 'recomendations' %}">Рекомендации ИИ</a></li>
+                    <li class="nav_list_item"><a href="{% url 'private_requests' %}">Частые запросы</a></li>
+                    <li class="nav_list_item"><a href="{% url 'logout' %}"><span class="login">{{ user.username }} | Выход</span></a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <div class="container container_height">
+        <main class="main">
+            <p>Для доступа ваш аккаунт должен быть подтвержден директором.</p>
+        </main>
+        <footer class="footer">
+            <div class="footer_content">
+                <span>VK | TG</span>
+
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
