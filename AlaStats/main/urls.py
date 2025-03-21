@@ -1,5 +1,5 @@
 from django.urls import path
-from .templates.main import views
+from . import views
 from users import views as user_views
 
 urlpatterns = [
@@ -12,3 +12,4 @@ urlpatterns = [
     path('logout/', user_views.logout_view, name='logout'),
 ]
 
+handler404 = views.custom_404_view
