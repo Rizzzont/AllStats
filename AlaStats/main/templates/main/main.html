@@ -1,5 +1,6 @@
-<!DOCTYPE html>
 {% load static %}
+{% csrf_token %}
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -18,6 +19,7 @@
                     <li class="nav_list_item"><a href="{% url 'analytics' %}">Аналитика</a></li>
                     <li class="nav_list_item"><a href="{% url 'recomendations' %}">Рекомендации ИИ</a></li>
                     <li class="nav_list_item"><a href="{% url 'private_requests' %}">Частые запросы</a></li>
+                    <li class="nav_list_item"><a href="{% url 'upload' %}">Загрузить файл</a></li>
                     <li class="nav_list_item"><a href="{% url 'logout' %}"><span class="login">{{ user.username }} | Выход</span></a></li>
                 </ul>
             </div>   
@@ -28,25 +30,25 @@
             <div class="main_left-wrapper">
                 <div class="card">
                     <h2>Продано на сумму ₽</h2>
-                    <p>7 352 457</p>
+                    <p>{{ profit }}</p>
                 </div>
                 <div class="card">
                     <h2>Заказано Шт</h2>
-                    <p>4 457</p>
+                    <p>{{ orders }}</p>
                 </div>
                 <div class="card">
                     <h2>Средний рейтинг товаров</h2>
-                    <p>9.5</p>
+                    <p>{{ rate }}</p>
                 </div>
                 <div class="card">
                     <h2>Среднее время доставки</h2>
-                    <p>3 дня 22 часа</p>
+                    <p>{{ delivery_time }}</p>
                 </div>
-                <div class="card upload">
-                    <h2>Загрузка ZIP</h2>
-                    <button class="upload-btn">Выбрать файл</button>
-                    <input type="file" accept=".zip" hidden />
-                </div>
+{#                <div class="card upload">#}
+{#                    <h2>Загрузка excel</h2>#}
+{#                    <button class="upload-btn">Выбрать файл</button>#}
+{#                    <input type="file" name="file" accept=".xls,.xlsx" hidden />#}
+{#                </div>#}
             </div>
             <div class="main_right-wrapper">
                 <div class="main_graph">

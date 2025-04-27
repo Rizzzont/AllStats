@@ -49,9 +49,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const pieLabels = ["A", "B", "C", "D"];
 
     let charts = {
-        "chartDiz": createChart("chartDiz", "bar", labels, [12, 19, 3, 5, 2, 3, 7, 10, 15, 20, 25, 30], "Продажи артикула дизайнера"),
+        "chartDiz": createChart("chartDiz", "bar", labels, [12, 19, 3, 5, 2, 3, 7, 10, 15, 20, 25, 30], "Продажи по артикулам дизайнеров"),
         "pieDiz": createChart("pieDiz", "pie", pieLabels, [10, 20, 30, 40], "Распределение"),
-        "chartDizs": createChart("chartDizs", "bar", labels, [5, 9, 4, 7, 10, 12, 6, 8, 14, 18, 22, 27], "Продажи артикулов дизайнеров"),
+        "chartDizs": createChart("chartDizs", "bar", labels, [5, 9, 4, 7, 10, 12, 6, 8, 14, 18, 22, 27], "Прибыль по артикулам дизайнеров"),
         "pieDizs": createChart("pieDizs", "pie", pieLabels, [15, 25, 35, 25], "Распределение"),
         "chartCategory": createChart("chartCategory", "bar", labels, [8, 14, 6, 12, 18, 9, 13, 15, 22, 28, 30, 35], "Категория"),
         "pieCategory": createChart("pieCategory", "pie", pieLabels, [20, 15, 40, 25], "Распределение"),

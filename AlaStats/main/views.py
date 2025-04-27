@@ -1,10 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
+import os
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
 
-from django.shortcuts import render
-
-from main.total_profit import TotalProfit
+from main.functions import main_info
 import pandas as pd
+import tempfile
 
 ROLES = ['Сотрудник', 'Директор']
 
@@ -26,20 +28,32 @@ def group_required(min_group):
 
 
 @group_required('Сотрудник')
-def index(request):
-    totalprofit = 0
+def upload_file(request):
+    if request.method == 'POST':
+        uploaded_file = request.FILES['file']
+        df = pd.read_excel(uploaded_file, sheet_name='Товары')
 
-    if request.method == "POST" and request.FILES.get("file"):
-        file = request.FILES["file"]
-        fs = FileSystemStorage()
-        filename = fs.save(file.name, file)
-        filepath = fs.path(filename)
+        temp = tempfile.NamedTemporaryFile(delete=False, suffix=".pkl")
+        df.to_pickle(temp.name)
 
-        df = pd.read_excel(filepath, usecols=["Выкупили на сумму, ₽"])
-        tp = TotalProfit(df)
-        totalprofit = tp.get_results()
+        request.session['data_path'] = temp.name
+        print("На вкладку main")
+        return redirect("main")
 
-    return render(request, "main/main.html", {"total_profit": totalprofit})
+    print("На вкладку upload")
+    return render(request, "main/upload.html")
+
+
+@group_required('Сотрудник')
+def main(request):
+    path = request.session.get('data_path')
+    if not path or not os.path.exists(path):
+        return render(request, "main/NoData.html")
+
+    df = pd.read_pickle(path)
+    info = main_info(df)
+
+    return render(request, "main/main.html", info)
 
 
 @group_required('Сотрудник')
