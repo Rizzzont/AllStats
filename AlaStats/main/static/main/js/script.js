@@ -1,14 +1,14 @@
 const ctx = document.getElementById('myBarChart').getContext('2d');
 
-const salesData = [500, 725, 420, 425, 650, 475, 500, 500, 725, 420, 425, 650, 475, 500, 500, 725, 420, 425, 650, 475, 500];
-const revenueData = salesData.map(s => s * 200);
+const salesData = chartData.sales;
+const revenueData = chartData.profit;
 
 let currentData = revenueData;
 
 const chart = new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Янв1", "Фев1", "Мар1", "Апр1", "Май1", "Июн1", "Июл1", "Янв2", "Фев2", "Мар2", "Апр2", "Май2", "Июн2", "Июл2"],
+        labels: chartData.names,
         datasets: [{
             label: "Выручка",
             data: currentData,

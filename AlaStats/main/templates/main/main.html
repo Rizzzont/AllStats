@@ -54,11 +54,11 @@
                 <div class="main_graph">
                     <h2>График продаж</h2>
                     <div class="chart-container">
-                        <canvas id="myBarChart"></canvas>
-                        <div class="chart-controls">
-                            <button onclick="updateChart('revenue')">Выручка</button>
-                            <button onclick="updateChart('sales')">Количество продаж</button>
-                        </div>                        
+                    <div class="chart-controls">
+                        <button onclick="updateChart('revenue')" class="btn btn-primary">Показать выручку</button>
+                        <button onclick="updateChart('sales')" class="btn btn-secondary">Показать продажи</button>
+                    </div>
+                    <canvas id="myBarChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -70,6 +70,19 @@
             </div>
         </footer>
     </div>
+
+    {{ chart_names|json_script:"chart-names" }}
+    {{ chart_sales|json_script:"chart-sales" }}
+    {{ chart_profit|json_script:"chart-profit" }}
+
+    <script>
+        const chartData = {
+            names: JSON.parse(document.getElementById('chart-names').textContent),
+            sales: JSON.parse(document.getElementById('chart-sales').textContent),
+            profit: JSON.parse(document.getElementById('chart-profit').textContent)
+        };
+    </script>
+
     <script src={% static "main/js/script.js" %}></script>
     <div id="loginModal" class="modal">
         <div class="modal-content">

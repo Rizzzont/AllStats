@@ -3,8 +3,10 @@ from django.core.files.storage import FileSystemStorage
 import os
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 
-from main.functions import main_info
+from main.functions import main_info, analytic
 import pandas as pd
 import tempfile
 
@@ -53,7 +55,14 @@ def main(request):
     df = pd.read_pickle(path)
     info = main_info(df)
 
-    return render(request, "main/main.html", info)
+    main_data = analytic(df)
+    print(main_data)
+    context = {
+        **info,
+        **main_data
+    }
+
+    return render(request, "main/main.html", context)
 
 
 @group_required('Сотрудник')

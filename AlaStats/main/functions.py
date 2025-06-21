@@ -1,5 +1,7 @@
 import re
-
+from enum import unique
+import pandas as pd
+import json
 
 def parse_delivery_time(value):
     if not isinstance(value, str):
@@ -45,7 +47,6 @@ def main_info(dataframe):
         try:
             delivery_time[0] += parse_delivery_time(row['Среднее время доставки'])
             delivery_time[1] += 1
-
         except (ValueError, TypeError):
             pass
 
@@ -54,6 +55,27 @@ def main_info(dataframe):
     delivery_time = f"{int(delivery_time // 24)}д {int(delivery_time % 24)}ч"
     return {"profit":profit, "orders":orders, "rate":rate, "delivery_time":delivery_time}
 
+def analytic(dataframe):
+    names = dataframe["Предмет"].unique().tolist()
+    data_about_sales = [0 for name in names]
+    data_about_profit = [0 for name in names]
 
-def analyt(dataframe):
-    pass
+    for _, row in dataframe.iterrows():
+        data_about_sales[names.index(row["Предмет"])] += row["Выкупили, шт"]
+        data_about_profit[names.index(row["Предмет"])] += row["Выкупили на сумму, ₽"]
+
+    combined = list(zip(names, data_about_sales, data_about_profit))
+
+    combined.sort(key=lambda x: x[2], reverse=True)
+
+    top_combined = combined[:10]
+
+    top_names = [item[0] for item in top_combined]
+    top_sales = [item[1] for item in top_combined]
+    top_profit = [item[2] for item in top_combined]
+
+    return {
+        "chart_names": top_names,
+        "chart_sales": top_sales,
+        "chart_profit": top_profit
+    }
