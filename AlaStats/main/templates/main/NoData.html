@@ -20,7 +20,6 @@
                     <li class="nav_list_item"><a href="{% url 'recomendations' %}">Рекомендации ИИ</a></li>
                     <li class="nav_list_item"><a href="{% url 'private_requests' %}">Частые запросы</a></li>
                     <li class="nav_list_item"><a href="{% url 'upload' %}">Загрузить файл</a></li>
-                    <li class="nav_list_item"><a href="{% url 'logout' %}"><span class="login">{{ user.username }} | Выход</span></a></li>
                 </ul>
             </div>
         </nav>
@@ -53,5 +52,17 @@
             <p id="loginError" class="error-message"></p>
         </div>
     </div>
+
+{% if data_loaded %}
+    {{ chart_names|json_script:"chart-names" }}
+    {{ chart_sales|json_script:"chart-sales" }}
+    {{ chart_profit|json_script:"chart-profit" }}
+
+    <script src="{% static 'main/js/script.js' %}"></script>
+{% else %}
+    <p style="text-align:center; margin-top: 20px;">Данные не загружены. Загрузите архив .zip с таблицами Excel.</p>
+{% endif %}
+
+
 </body>
 </html>

@@ -1,285 +1,253 @@
-@charset "UTF-8";
-@import url(normalize.css);
-@import url(reset.css);
-
-/* Общие стили */
-* {
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
-
+/* --- ОБЩИЕ СТИЛИ --- */
 body {
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
+  background: #f4f4f4;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
 }
-
-/* Контейнер */
 .container {
-    width: 90%;
-    max-width: 1300px;
-    margin: 0 auto;
+  width: 90%;
+  max-width: 1300px;
+  margin: 0 auto;
 }
-
-/* Контейнер с высотой экрана */
 .container_height {
-    height: calc(100vh - 70px);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  height: calc(100vh - 70px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-/* Хедер */
+/* --- ЕДИНАЯ ШАПКА И НАВИГАЦИЯ --- */
 header {
-    background: linear-gradient(135deg, #b750be, #8e44ad);
-    padding: 15px 0;
-    color: white;
-    text-align: center;
-    margin-bottom: 20px;
+  background: linear-gradient(135deg, #b750be, #8e44ad);
+  padding: 15px 0;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 20px;
 }
-
-/* Навигация */
 nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-
 .nav_left {
-    font-size: 26px;
+  font-size: 26px;
 }
-
 .nav_list {
-    display: flex;
-    list-style: none;
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
-
 .nav_list_item {
-    margin-right: 20px;
+  margin-right: 20px;
 }
-
+.nav_list_item:last-child {
+  margin-right: 0;
+}
 .nav_list_item a {
-    text-decoration: none;
-    color: white;
-    font-size: 18px;
-    transition: 0.3s;
+  color: #fff;
+  font-size: 18px;
+  text-decoration: none;
+  transition: color 0.3s;
 }
-
 .nav_list_item a:hover {
-    color: #ffcc00;
+  color: #ffcc00;
 }
 
-/* Основной контент */
+/* --- КОНТЕНТ И ГРАФИКИ --- */
 .main {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
-
-/* Стили для графиков */
 .graphs {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
-
-.graph {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-/* Размещение графиков в 2 колонки */
-.graph-container {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
+.graph,
 .graph-block {
-    flex: 1 1 calc(50% - 20px); /* Два графика в ряд */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 1260px;
+}
+.graph-title {
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 1.4em;
+  color: #333;
 }
 
-/* Адаптивность для мобильных устройств */
-@media (max-width: 768px) {
-    .graph-block {
-        flex: 1 1 100%; /* Один график в строку */
-    }
+/* Для двух графиков в ряд */
+.graph-container,
+.chart-wrapper {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  width: 100%;
 }
-
-/* Контейнер для графика */
+.graph-block,
 .chart-container {
-    width: 100%;
-    max-width: 500px;
-    height: 300px;
-    margin: 0 auto;
-    position: relative;
+  flex: 1 1 48%;
+  max-width: 48%;
 }
-
-/* Кнопки переключения графиков */
-.chart-controls {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 16px;
-}
-
-.chart-controls button {
-    padding: 10px 20px;
-    border: none;
-    background-color: #9148cd;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: 0.3s;
-}
-
-.chart-controls button:hover {
-    background-color: #7a3ba8;
-}
-
-/* Футер */
-.footer {
-    background: black;
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-}
-
-/* Кнопка прокрутки вверх */
-.scroll-to-top {
-    background: #ffcc00;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-/* Модальное окно */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 10;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-    background-color: white;
-    padding: 20px;
-    margin: 15% auto;
-    width: 300px;
-    border-radius: 8px;
-    text-align: center;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.close {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-.modal input {
-    width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.modal button {
-    width: 100%;
-    padding: 10px;
-    background-color: #9148cd;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: 0.3s;
-}
-
-.modal button:hover {
-    background-color: #7a3ba8;
-}
-
-.error-message {
-    color: red;
-    font-size: 14px;
-    margin-top: 10px;
-}
-
-/* Адаптивность */
-/* 📱 Планшеты (768px - 1024px) */
-@media (max-width: 1024px) {
-    .container {
-        max-width: 100%;
-        padding: 0 20px;
-    }
-
-    .main {
-        flex-direction: column;
-    }
-
-    .chart-container {
-        max-width: 90%;
-    }
-}
-.graph {
-    display: flex;
+@media (max-width: 768px) {
+  .graph-block,
+  .chart-container {
+    flex: 1 1 100%;
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+  .chart-wrapper {
     flex-direction: column;
     align-items: center;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
   }
-  
-  .chart-wrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    flex-wrap: wrap; /* Позволяет диаграммам переноситься */
-  }
-  
-  .chart-container {
-    width: 48%; /* Две диаграммы по 50%, но с небольшим отступом */
-    display: flex;
-    justify-content: center;
-  }
-  
-  canvas {
-    max-width: 100%;
-  }
-  
-  /* 📱 Адаптивность для мобильных устройств */
-  @media (max-width: 768px) {
-    .chart-wrapper {
-      flex-direction: column;
-      align-items: center;
-    }
-  
-    .chart-container {
-      width: 100%; /* Диаграммы занимают всю ширину */
-      margin-bottom: 20px;
-    }
-  }
-  
+}
+.chart-container {
+  width: 100%;
+  max-width: 750px;      /* Было 500px — стало 700px или больше */
+  height: 870px;         /* Было 300-350px — стало 450px или больше */
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;   /* Центровка по вертикали */
+}
+.chart-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+
+/* Кнопки и элементы управления */
+.chart-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 16px 0;
+}
+.chart-controls button,
+.toggle-btn {
+  margin-top: 10px;
+  padding: 10px 20px;
+  border: none;
+  background: #9148cd;
+  color: #fff;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.chart-controls button:hover,
+.toggle-btn:hover {
+  background: #7a3ba8;
+}
+
+/* Селекты и инпуты */
+.chart-select {
+  display: block;
+  width: 200px;
+  margin: 0 auto 20px auto;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+#extraInput {
+  text-align: center;
+  margin-bottom: 15px;
+}
+#itemInput {
+  padding: 6px 10px;
+  font-size: 16px;
+  width: 250px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+.hidden {
+  display: none;
+}
+
+/* --- ФУТЕР И ПРОКРУТКА ВВЕРХ --- */
+.footer {
+  background: #000;
+  color: #fff;
+  text-align: center;
+  padding: 10px 0;
+}
+.scroll-to-top {
+  background: #ffcc00;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* --- МОДАЛЬНЫЕ ОКНА --- */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 10;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+}
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  margin: 15% auto;
+  width: 300px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+.close {
+  position: absolute;
+  right: 10px; top: 10px;
+  font-size: 24px;
+  cursor: pointer;
+}
+.modal input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.modal button {
+  width: 100%;
+  padding: 10px;
+  background: #9148cd;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.modal button:hover {
+  background: #7a3ba8;
+}
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* --- АДАПТИВНОСТЬ --- */
+@media (max-width: 1024px) {
+  .container { max-width: 100%; padding: 0 20px; }
+  .main { flex-direction: column; }
+  .chart-container { max-width: 90%; }
+}

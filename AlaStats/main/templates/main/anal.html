@@ -1,4 +1,5 @@
 {% load static %}
+{% csrf_token %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -10,7 +11,7 @@
 </head>
 <body>
     <header>
-        <nav class="container_section container">       
+        <nav class="container_section container">
             <div class="nav_left">AlaStats</div>
             <div class="nav_right">
                 <ul class="nav_list">
@@ -18,81 +19,38 @@
                     <li class="nav_list_item"><a href="{% url 'analytics' %}">Аналитика</a></li>
                     <li class="nav_list_item"><a href="{% url 'recomendations' %}">Рекомендации ИИ</a></li>
                     <li class="nav_list_item"><a href="{% url 'private_requests' %}">Частые запросы</a></li>
-                    <li class="nav_list_item"><a href="{% url 'logout' %}"><span class="login">{{ user.username }} | Выход</span></a></li>
+                    <li class="nav_list_item"><a href="{% url 'upload' %}">Загрузить файл</a></li>
                 </ul>
             </div>
         </nav>
     </header>
-    
+
     <div class="container container_height">
         <main class="graphs">
-            <div class="graph graph_diz">
-                <h3>Продажи по артикулам дизайнеров</h3>
-                <div class="chart-container">
-                    <canvas id="chartDiz"></canvas>
-                    <canvas id="pieDiz"></canvas>
-                </div>
-                <div class="chart-controls">
-                    <button onclick="toggleChart('chartDiz')">Переключить</button>
-                </div>
-            </div>
+            <div class="graph">
+                <h3 class="graph-title">Аналитика за 12 месяцев</h3>
+                <select id="chartSelect" class="chart-select">
+                    <option value="default">Выберите график</option>
+                    <option value="chartDiz">Артикул дизайнера</option>
+                    <option value="chartDizs">Артикулы дизайнеров</option>
+                    <option value="chartCategory">Категория</option>
+                    <option value="chartCategorys">Категории</option>
+                    <option value="chartGood">Товар</option>
+                    <option value="chartGoods">Товары</option>
+                </select>
 
-            <div class="graph graph_dizs">
-                <h3>Прибыль по артикулам дизайнеров</h3>
-                <div class="chart-container">
-                    <canvas id="chartDizs"></canvas>
-                    <canvas id="pieDizs"></canvas>
+                <div id="extraInput" class="hidden">
+                    <input type="text" id="itemInput" placeholder="Введите название или артикул" />
                 </div>
-                <div class="chart-controls">
-                    <button onclick="toggleChart('chartDizs')">Переключить</button>
-                </div>
-            </div>
 
-            <div class="graph graph_category">
-                <h3>Категория</h3>
                 <div class="chart-container">
-                    <canvas id="chartCategory"></canvas>
-                    <canvas id="pieCategory"></canvas>
+                    <canvas id="mainChart"></canvas>
                 </div>
-                <div class="chart-controls">
-                    <button onclick="toggleChart('chartCategory')">Переключить</button>
-                </div>
-            </div>
-
-            <div class="graph graph_categorys">
-                <h3>Категории</h3>
-                <div class="chart-container">
-                    <canvas id="chartCategorys"></canvas>
-                    <canvas id="pieCategorys"></canvas>
-                </div>
-                <div class="chart-controls">
-                    <button onclick="toggleChart('chartCategorys')">Переключить</button>
-                </div>
-            </div>
-
-            <div class="graph graph_good">
-                <h3>Товар за 12 месяцев</h3>
-                <div class="chart-container">
-                    <canvas id="chartGood"></canvas>
-                    <canvas id="pieGood"></canvas>
-                </div>
-                <div class="chart-controls">
-                    <button onclick="toggleChart('chartGood')">Переключить</button>
-                </div>
-            </div>
-
-            <div class="graph graph_goods">
-                <h3>Товары за 12 месяцев</h3>
-                <div class="chart-container">
-                    <canvas id="chartGoods"></canvas>
-                    <canvas id="pieGoods"></canvas>
-                </div>
-                <div class="chart-controls">
-                    <button onclick="toggleChart('chartGoods')">Переключить</button>
-                </div>
+                <button id="toggleChart" class="toggle-btn">Переключить</button>
             </div>
         </main>
-        
+
+
         <footer class="footer">
             <div class="footer_content">
                 <span>VK | TG</span>

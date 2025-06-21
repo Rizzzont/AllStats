@@ -1,0 +1,139 @@
+{% load static %}
+{% csrf_token %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlaStats</title>
+    <link rel="stylesheet" href="{% static 'main/css/request.css'%}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="container_section container">
+            <div class="nav_left">AlaStats</div>
+            <div class="nav_right">
+                <ul class="nav_list">
+                    <li class="nav_list_item"><a href="{% url 'main' %}">Главная</a></li>
+                    <li class="nav_list_item"><a href="{% url 'analytics' %}">Аналитика</a></li>
+                    <li class="nav_list_item"><a href="{% url 'recomendations' %}">Рекомендации ИИ</a></li>
+                    <li class="nav_list_item"><a href="{% url 'private_requests' %}">Частые запросы</a></li>
+                    <li class="nav_list_item"><a href="{% url 'upload' %}">Загрузить файл</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <div class="container container_height">
+        <main class="main">
+            <div class="main_left-wrapper">
+                <div class="card">
+                    <h2>Средняя частотность:продажа</h2>
+                    <p>-</p>
+                </div>
+                <div class="card">
+                    <h2>наибольшая частотность:продажа</h2>
+                    <p>-</p>
+                </div>
+                <div class="card">
+                    <h2>минимальная частотность:продажа</h2>
+                    <p>-</p>
+                </div>
+            </div>
+            <div class="main_right-wrapper">
+                <div class="main_graph">
+                    <h2>График по данным из JSON</h2>
+                    <select class="chart-select" id="selectDataset">
+                        <option value="">Выберите график</option>
+                    </select>
+                    <div class="chart-container">
+                        <canvas id="myBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="footer">
+            <div class="footer_content">
+                <span>VK | TG</span>
+            </div>
+        </footer>
+    </div>
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Вход в систему</h2>
+            <form id="loginForm">
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="Введите email" required>
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" placeholder="Введите пароль" required>
+                <button type="submit">Войти</button>
+            </form>
+            <p id="loginError" class="error-message"></p>
+        </div>
+    </div>
+    <script>
+        // Пример "JSON файла"
+        const jsonData = [
+            {
+                "name": "Продажи",
+                "labels": ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+                "data": [120, 150, 180, 170, 200, 220, 210, 230, 240, 210, 190, 180]
+            },
+            {
+                "name": "Расходы",
+                "labels": ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+                "data": [90, 100, 110, 120, 130, 125, 140, 150, 145, 135, 120, 115]
+            },
+            {
+                "name": "Прибыль",
+                "labels": ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+                "data": [30, 50, 70, 50, 70, 95, 70, 80, 95, 75, 70, 65]
+            }
+        ];
+
+        // Заполнение select
+        const select = document.getElementById('selectDataset');
+        jsonData.forEach((item, idx) => {
+            const option = document.createElement('option');
+            option.value = idx;
+            option.textContent = item.name;
+            select.appendChild(option);
+        });
+
+        // Chart.js
+        const ctx = document.getElementById('myBarChart').getContext('2d');
+        let chart = null;
+
+        select.addEventListener('change', function() {
+            const idx = this.value;
+            if (chart) chart.destroy();
+            if (idx === '') return;
+            const data = jsonData[idx];
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: data.name,
+                        data: data.data,
+                        backgroundColor: 'rgba(183, 80, 190, 0.5)',
+                        borderColor: '#8e44ad',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    },
+                    plugins: {
+                        legend: { display: true }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

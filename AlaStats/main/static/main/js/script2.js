@@ -1,61 +1,73 @@
 document.addEventListener("DOMContentLoaded", function () {
-    function createChart(chartId, type, labels, data, label) {
-        const ctx = document.getElementById(chartId).getContext("2d");
-        return new Chart(ctx, {
-            type: type,
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: label,
-                    data: data,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.5)',
-                        'rgba(54, 162, 235, 0.5)',
-                        'rgba(255, 206, 86, 0.5)',
-                        'rgba(75, 192, 192, 0.5)',
-                        'rgba(153, 102, 255, 0.5)',
-                        'rgba(255, 159, 64, 0.5)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: type === "bar" ? {
-                    y: {
-                        beginAtZero: true
-                    }
-                } : {}
-            }
-        });
-    }
-
-    function toggleChart(chartId) {
-        let chart = charts[chartId];
-        chart.config.type = chart.config.type === "bar" ? "line" : "bar";
-        chart.update();
-    }
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    let chartType = 'bar';
 
     const labels = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"];
-    const pieLabels = ["A", "B", "C", "D"];
-
-    let charts = {
-        "chartDiz": createChart("chartDiz", "bar", labels, [12, 19, 3, 5, 2, 3, 7, 10, 15, 20, 25, 30], "Продажи по артикулам дизайнеров"),
-        "pieDiz": createChart("pieDiz", "pie", pieLabels, [10, 20, 30, 40], "Распределение"),
-        "chartDizs": createChart("chartDizs", "bar", labels, [5, 9, 4, 7, 10, 12, 6, 8, 14, 18, 22, 27], "Прибыль по артикулам дизайнеров"),
-        "pieDizs": createChart("pieDizs", "pie", pieLabels, [15, 25, 35, 25], "Распределение"),
-        "chartCategory": createChart("chartCategory", "bar", labels, [8, 14, 6, 12, 18, 9, 13, 15, 22, 28, 30, 35], "Категория"),
-        "pieCategory": createChart("pieCategory", "pie", pieLabels, [20, 15, 40, 25], "Распределение"),
+    
+    const dataSets = {
+        default: [],
+        chartDiz: [12, 19, 3, 5, 2, 3, 7, 10, 15, 20, 25, 30],
+        chartDizs: [5, 9, 4, 7, 10, 12, 6, 8, 14, 18, 22, 27],
+        chartCategory: [8, 14, 6, 12, 18, 9, 13, 15, 22, 28, 30, 35],
+        chartCategorys: [7, 11, 5, 10, 16, 8, 12, 14, 20, 25, 29, 33],
+        chartGood: [9, 13, 7, 11, 17, 10, 14, 16, 21, 26, 31, 34],
+        chartGoods: [4, 8, 2, 6, 9, 5, 7, 11, 13, 15, 19, 23]
     };
 
-    window.toggleChart = toggleChart;
+    const chartSelect = document.getElementById('chartSelect');
+    const extraInput = document.getElementById('extraInput');
+    const itemInput = document.getElementById('itemInput');
+
+    let currentChart = new Chart(ctx, {
+        type: chartType,
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Выберите график',
+                data: [],
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    function updateChart() {
+        const selectedChart = chartSelect.value;
+        const userInput = itemInput.value;
+
+        let labelText = chartSelect.options[chartSelect.selectedIndex].text;
+        if (userInput.trim()) {
+            labelText += ` (${userInput.trim()})`;
+        }
+
+        currentChart.data.datasets[0].label = labelText;
+        currentChart.data.datasets[0].data = dataSets[selectedChart] || [];
+        currentChart.update();
+    }
+
+    chartSelect.addEventListener('change', function () {
+        const value = this.value;
+
+        if (["chartDiz", "chartCategory", "chartGood"].includes(value)) {
+            extraInput.classList.remove('hidden');
+        } else {
+            extraInput.classList.add('hidden');
+            itemInput.value = "";
+        }
+
+        updateChart();
+    });
+
+    itemInput.addEventListener('input', updateChart);
+
+    document.getElementById('toggleChart').addEventListener('click', function () {
+        currentChart.config.type = currentChart.config.type === 'bar' ? 'line' : 'bar';
+        currentChart.update();
+    });
 });

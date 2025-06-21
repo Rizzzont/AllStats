@@ -1,0 +1,87 @@
+{% load static %}
+{% csrf_token %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlaStats</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css'%}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="container_section container">       
+            <div class="nav_left">AlaStats</div>
+            <div class="nav_right">
+                <ul class="nav_list">
+                    <li class="nav_list_item"><a href="{% url 'main' %}">Главная</a></li>
+                    <li class="nav_list_item"><a href="{% url 'analytics' %}">Аналитика</a></li>
+                    <li class="nav_list_item"><a href="{% url 'recomendations' %}">Рекомендации ИИ</a></li>
+                    <li class="nav_list_item"><a href="{% url 'private_requests' %}">Частые запросы</a></li>
+                    <li class="nav_list_item"><a href="{% url 'upload' %}">Загрузить файл</a></li>
+                </ul>
+            </div>   
+        </nav>
+    </header>
+    <div class="container container_height">
+        <main class="main">
+            <div class="main_left-wrapper">
+                <div class="card">
+                    <h2>Продано на сумму ₽</h2>
+                    <p>{{ profit }}</p>
+                </div>
+                <div class="card">
+                    <h2>Заказано Шт</h2>
+                    <p>{{ orders }}</p>
+                </div>
+                <div class="card">
+                    <h2>Средний рейтинг товаров</h2>
+                    <p>{{ rate }}</p>
+                </div>
+                <div class="card">
+                    <h2>Среднее время доставки</h2>
+                    <p>{{ delivery_time }}</p>
+                </div>
+{#                <div class="card upload">#}
+{#                    <h2>Загрузка excel</h2>#}
+{#                    <button class="upload-btn">Выбрать файл</button>#}
+{#                    <input type="file" name="file" accept=".xls,.xlsx" hidden />#}
+{#                </div>#}
+            </div>
+            <div class="main_right-wrapper">
+                <div class="main_graph">
+                    <h2>График продаж</h2>
+                    <div class="chart-container">
+                    <div class="chart-controls">
+                        <button onclick="updateChart('revenue')" class="btn btn-primary">Показать выручку</button>
+                        <button onclick="updateChart('sales')" class="btn btn-secondary">Показать продажи</button>
+                    </div>
+                    <canvas id="myBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="footer">
+            <div class="footer_content">
+                <span>VK | TG</span>
+                
+            </div>
+        </footer>
+    </div>
+
+    {{ chart_names|json_script:"chart-names" }}
+    {{ chart_sales|json_script:"chart-sales" }}
+    {{ chart_profit|json_script:"chart-profit" }}
+
+    <script>
+        const chartData = {
+            names: JSON.parse(document.getElementById('chart-names').textContent),
+            sales: JSON.parse(document.getElementById('chart-sales').textContent),
+            profit: JSON.parse(document.getElementById('chart-profit').textContent)
+        };
+    </script>
+
+    <script src={% static "main/js/script.js" %}></script>
+</body>
+</html>
