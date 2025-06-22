@@ -84,10 +84,11 @@
 </div>
 
 {% if data_loaded %}
-    {{ chart_names|json_script:"chart-names" }}
     {{ chart_sales|json_script:"chart-sales" }}
     {{ chart_profit|json_script:"chart-profit" }}
+    {{ chart_names|json_script:"chart-names" }}
     <script src="{% static 'main/js/script.js' %}"></script>
+
 {% endif %}
 </body>
 </html>

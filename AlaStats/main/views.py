@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
 import json
+import pickle
 
 from main.functions import main_info, main_analytic
 import pandas as pd
@@ -26,38 +27,38 @@ def upload_excel(request):
                 f.write(chunk)
 
         # Чтение всех листов
-        all_sheets = pd.read_excel(excel_path, sheet_name=None)  # словарь {имя_листа: DataFrame}
+        all_sheets = pd.read_excel(excel_path, sheet_name=None)
 
-        # Сохраняем в pickle
+        # Сохраняем в pickle как dict
         pickle_path = os.path.join(temp_dir, "data.pkl")
-        all_sheets.to_pickle(pickle_path)
+        with open(pickle_path, "wb") as f:
+            pickle.dump(all_sheets, f)
 
         request.session["data_path"] = pickle_path
-        return redirect("main")  # или куда нужно
+        return redirect("main")
 
     return render(request, "main/upload.html")
-
 
 def main(request):
     path = request.session.get("data_path")
     if not path or not os.path.exists(path):
-        return render(request, "main/main.html", {
-            "data_loaded": False
-        })
+        return render(request, "main/main.html", {"data_loaded": False})
 
-    df = pd.read_pickle(path)
+    with open(path, "rb") as f:
+        sheet_dict = pickle.load(f)
 
-    summary = main_info(df)
-    charts = main_analytic(df)
+    combined_df = pd.concat(sheet_dict.values(), ignore_index=True)
+    summary = main_info(sheet_dict)
+    charts = main_analytic(sheet_dict)
 
     return render(request, "main/main.html", {
         "profit": summary["profit"],
         "orders": summary["orders"],
         "rate": summary["rate"],
         "delivery_time": summary["delivery_time"],
-        "chart_names": charts["chart_names"],
         "chart_sales": charts["chart_sales"],
         "chart_profit": charts["chart_profit"],
+        "chart_names": charts["chart_names"],
         "data_loaded": True
     })
 

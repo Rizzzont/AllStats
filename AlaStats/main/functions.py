@@ -54,7 +54,6 @@ def main_info(sheet_dict):
     rate_result = round(rate[0]/rate[1], 1) if rate[1] else 0
     avg_delivery_hours = delivery_time[0]/delivery_time[1] if delivery_time[1] else 0
     delivery_str = f"{int(avg_delivery_hours // 24)}д {int(avg_delivery_hours % 24)}ч"
-
     return {
         "profit": profit,
         "orders": orders,
@@ -62,31 +61,29 @@ def main_info(sheet_dict):
         "delivery_time": delivery_str
     }
 
-
 def main_analytic(sheet_dict):
-    combined_df = pd.concat(sheet_dict.values(), ignore_index=True)
+    chart_sales = []
+    chart_profit = []
+    chart_names = []
 
-    if "Предмет" not in combined_df.columns:
-        return {"chart_names": [], "chart_sales": [], "chart_profit": []}
+    for sheet_name, df in sheet_dict.items():
+        total_sales = 0
+        total_profit = 0
 
-    names = combined_df["Предмет"].unique().tolist()
-    data_about_sales = [0 for _ in names]
-    data_about_profit = [0 for _ in names]
+        if "Выкупили, шт" in df.columns and "Выкупили на сумму, ₽" in df.columns:
+            for _, row in df.iterrows():
+                try:
+                    total_sales += int(row["Выкупили, шт"])
+                    total_profit += int(row["Выкупили на сумму, ₽"])
+                except (ValueError, TypeError, KeyError):
+                    continue
 
-    for _, row in combined_df.iterrows():
-        try:
-            idx = names.index(row["Предмет"])
-            data_about_sales[idx] += int(row["Выкупили, шт"])
-            data_about_profit[idx] += int(row["Выкупили на сумму, ₽"])
-        except (ValueError, TypeError, KeyError):
-            pass
-
-    combined = list(zip(names, data_about_sales, data_about_profit))
-    combined.sort(key=lambda x: x[2], reverse=True)
-    top_combined = combined[:10]
+        chart_names.append(sheet_name)
+        chart_sales.append(total_sales)
+        chart_profit.append(total_profit)
 
     return {
-        "chart_names": [item[0] for item in top_combined],
-        "chart_sales": [item[1] for item in top_combined],
-        "chart_profit": [item[2] for item in top_combined]
+        "chart_sales": chart_sales,
+        "chart_profit": chart_profit,
+        "chart_names": chart_names
     }

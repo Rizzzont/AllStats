@@ -1,14 +1,15 @@
 const ctx = document.getElementById('myBarChart').getContext('2d');
 
-const salesData = [500, 725, 420, 425, 650, 475, 500];
-const revenueData = salesData.map(s => s * 500);
+const salesData = JSON.parse(document.getElementById("chart-sales").textContent);
+const revenueData = JSON.parse(document.getElementById("chart-profit").textContent);
+const names = JSON.parse(document.getElementById("chart-names").textContent);
 
 let currentData = revenueData;
 
 const chart = new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл"],
+        labels: names,
         datasets: [{
             label: "Выручка",
             data: currentData,
