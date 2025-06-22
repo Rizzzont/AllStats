@@ -2,6 +2,8 @@ import re
 from enum import unique
 import pandas as pd
 import json
+from typing import Dict, Any, List, Optional
+
 
 def parse_delivery_time(value):
     if not isinstance(value, str):
@@ -51,8 +53,8 @@ def main_info(sheet_dict):
             except (ValueError, TypeError, KeyError):
                 pass
 
-    rate_result = round(rate[0]/rate[1], 1) if rate[1] else 0
-    avg_delivery_hours = delivery_time[0]/delivery_time[1] if delivery_time[1] else 0
+    rate_result = round(rate[0] / rate[1], 1) if rate[1] else 0
+    avg_delivery_hours = delivery_time[0] / delivery_time[1] if delivery_time[1] else 0
     delivery_str = f"{int(avg_delivery_hours // 24)}д {int(avg_delivery_hours % 24)}ч"
     return {
         "profit": profit,
@@ -60,6 +62,7 @@ def main_info(sheet_dict):
         "rate": rate_result,
         "delivery_time": delivery_str
     }
+
 
 def main_analytic(sheet_dict):
     chart_sales = []
@@ -89,3 +92,146 @@ def main_analytic(sheet_dict):
     }
 
 
+def remove_elements(lst):
+    elements_to_remove = {"TEAM", "FON", "NABOR", "ROD", "VES", "KD"}
+    return [item for item in lst if item not in elements_to_remove]
+
+
+def parsing(art):
+    if pd.isna(art):
+        return None
+    splitted_art = str(art).split('-')
+    splitted_art = remove_elements(splitted_art)
+    num = {
+        "AKR": 4, "BOX": 1, "AD": 2, "BANK": 1, "NGT": 1, "MTL": 2, "OJV": 6, "3D": 1, "PASP": 2,
+        "STUD": 2, "CART": 2, "RM": 2, "BAN": 1, "CHEV": 2, "POP": 2, "KL": 2, "GIT": 2, "EGD": 2,
+        "ZNP": 2, "3DS": 1, "MGNT": 2, "VKL": 2, "ADK": 2, "ÀÄ": 2, "1": 2, "ÍÃÒ": 1, "ÈÍÒ": 1,
+        "INT": 1, "1P": 2, "SCHBOX": 1, "SHPR": 2, "ZKL": 2, "PLST": 3, "PRST": 2, "PRMGNT": 2,
+        "PLMGNT": 2, "PIAN": 2, "PARK": 2, "OTKR": 2, "MGNTR": 2, "DIMPLST": 3, "DIMGNT": 2, "AKROD": 3
+    }
+    if "OJV" in splitted_art:
+        return splitted_art[6] if len(splitted_art) > 6 else None
+    elif "RM" in splitted_art:
+        return splitted_art[2] if len(splitted_art) > 2 else None
+    elif "AKROD" in splitted_art and "3MM" in splitted_art:
+        return splitted_art[4] if len(splitted_art) > 4 else None
+    else:
+        key = splitted_art[0] if splitted_art else None
+        index = num.get(key, None)
+        n = ["ORACAL", "WHITE", "ORAGUARD", "30cm", "POSTER", "ORANGE"]
+        if index is not None and len(splitted_art) > index:
+            if splitted_art[index].isdigit() or splitted_art[index] in n or "cm" in splitted_art[index]:
+                return None
+            return splitted_art[index]
+        else:
+            return None
+
+
+# Для дизайнера по месяцам
+def designer_sum(sheet_dict: Dict[str, pd.DataFrame], designer: str) -> List[float]:
+    values = []
+
+    for sheet_name, df in sheet_dict.items():
+
+        if df is None or df.empty:
+            values.append(0)
+            continue
+
+        if "Артикул продавца" not in df.columns:
+            values.append(0)
+            continue
+
+        df["Инициалы дизайнера"] = df["Артикул продавца"].apply(parsing)
+
+        grouped = df.groupby("Инициалы дизайнера")[["Выкупили на сумму, ₽"]].sum()
+
+        if designer:
+            val = float(grouped.loc[designer]["Выкупили на сумму, ₽"])
+
+        else:
+            val = 0
+
+        values.append(val)
+
+    return values
+
+# Для всех дизайнеров в листе/месяце
+def designers_sum(sheet_dict: Dict[str, pd.DataFrame]) -> List[float]:
+    values = []
+    sheet_names = []
+    for sheet_name, df in sheet_dict.items():
+        if df is None or df.empty or "Артикул продавца" not in df.columns:
+            values.append(0)
+            continue
+        sheet_names.append(sheet_name)
+
+        df['Инициалы дизайнера'] = df["Артикул продавца"].apply(parsing)
+        grouped = df.groupby("Инициалы дизайнера")[["Выкупили на сумму, ₽"]].sum()
+
+        total = grouped["Выкупили на сумму, ₽"].sum()
+        values.append(float(total))
+
+    print(values)
+    print(sheet_names)
+    return values
+
+
+# Для всех категорий в листе/месяце
+def categories_sum(sheet_dict: Dict[str, pd.DataFrame]) -> List[float]:
+    values = []
+    for sheet_name, df in sheet_dict.items():
+        if df is None or df.empty or "Предмет" not in df.columns:
+            values.append(0)
+            continue
+
+        grouped = df.groupby("Предмет")[["Выкупили на сумму, ₽"]].sum()
+        total = grouped["Выкупили на сумму, ₽"].sum()
+        values.append(float(total))
+
+    return values
+
+
+# По одной категории по месяцам
+def category_sum(sheet_dict: Dict[str, pd.DataFrame], category: str) -> List[float]:
+    values = []
+    for sheet_name, df in sheet_dict.items():
+        if df is None or df.empty or "Предмет" not in df.columns:
+            values.append(0)
+            continue
+
+        grouped = df.groupby("Предмет")[["Выкупили на сумму, ₽"]].sum()
+
+        val = float(grouped.loc[category]["Выкупили на сумму, ₽"]) if category in grouped.index else 0
+        values.append(val)
+
+    return values
+
+
+# По одному артикулу по месяцам
+def good_sum(sheet_dict: Dict[str, pd.DataFrame], article: Any) -> List[float]:
+    values = []
+    for sheet_name, df in sheet_dict.items():
+        if df is None or df.empty or "Артикул продавца" not in df.columns:
+            values.append(0)
+            continue
+
+        filtered = df[df["Артикул продавца"] == article]
+        val = float(filtered["Выкупили на сумму, ₽"].sum()) if not filtered.empty else 0
+        values.append(val)
+
+    return values
+
+
+
+# По всем артикулам в листе/месяце
+def goods_sum(sheet_dict: Dict[str, pd.DataFrame]) -> List[float]:
+    values = []
+    for sheet_name, df in sheet_dict.items():
+        if df is None or df.empty or "Артикул продавца" not in df.columns:
+            values.append(0)
+            continue
+
+        total = df["Выкупили на сумму, ₽"].sum()
+        values.append(float(total))
+
+    return values

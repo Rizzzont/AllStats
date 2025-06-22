@@ -5,8 +5,9 @@ from django.http import HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 import pickle
+from django.http import JsonResponse
 
-from main.functions import main_info, main_analytic
+from main.functions import main_info, main_analytic, designer_sum, designers_sum, category_sum, categories_sum, good_sum, goods_sum
 import pandas as pd
 import tempfile
 
@@ -62,9 +63,71 @@ def main(request):
         "data_loaded": True
     })
 
-def analytics(request):
+# Загрузка данных из pkl файла
+def load_sheet_dict(request):
+    data_path = request.session.get("data_path")
+    if not data_path or not os.path.exists(data_path):
+        return {}
+    with open(data_path, "rb") as f:
+        return pickle.load(f)
+
+# Главная страница аналитики
+def analytics_view(request):
     return render(request, "main/anal.html")
 
+# API для получения данных графика
+def analytics_api(request):
+    if request.method != "GET":
+        return JsonResponse({"error": "Ожидался GET-запрос"}, status=400)
+
+    func = request.GET.get("func")
+    value = request.GET.get("value", "").strip()
+
+    if func == "default" or not func:
+        return JsonResponse({"labels": [], "values": []})
+
+    # Загрузка данных из pickle
+    data_path = request.session.get("data_path")
+    if not data_path or not os.path.exists(data_path):
+        return JsonResponse({"error": "Нет данных"}, status=400)
+
+    with open(data_path, "rb") as f:
+        sheet_dict = pickle.load(f)
+
+    if not sheet_dict:
+        return JsonResponse({"error": "Пустые данные"}, status=400)
+
+    months = []
+
+    for sheet_name, df in sheet_dict.items():
+        months.append(sheet_name)
+
+    try:
+        if func == "chartDiz":
+            values = designer_sum(sheet_dict, value)
+
+        elif func == "chartCategory":
+            values = category_sum(sheet_dict, value)
+
+        elif func == "chartGood":
+            values = good_sum(sheet_dict, value)
+
+        elif func == "chartDizs":
+            values = designers_sum(sheet_dict)
+
+        elif func == "chartCategorys":
+            values = categories_sum(sheet_dict)
+
+        elif func == "chartGoods":
+            values = goods_sum(sheet_dict)
+
+        else:
+            return JsonResponse({"error": "Неверный параметр func"}, status=400)
+
+        return JsonResponse({"labels": months, "values": values})
+
+    except Exception as e:
+        return JsonResponse({"error": f"Ошибка обработки: {str(e)}"}, status=500)
 
 def recomendations(request):
     return render(request, "main/rec.html")
