@@ -129,109 +129,156 @@ def parsing(art):
 
 # Для дизайнера по месяцам
 def designer_sum(sheet_dict: Dict[str, pd.DataFrame], designer: str) -> List[float]:
-    values = []
-
+    value_profit = []
+    value_not_profit = []
     for sheet_name, df in sheet_dict.items():
 
         if df is None or df.empty:
-            values.append(0)
+            value_profit.append(0)
             continue
 
         if "Артикул продавца" not in df.columns:
-            values.append(0)
+            value_profit.append(0)
+            continue
+
+        if df is None or df.empty:
+            value_not_profit.append(0)
+            continue
+
+        if "Артикул продавца" not in df.columns:
+            value_not_profit.append(0)
             continue
 
         df["Инициалы дизайнера"] = df["Артикул продавца"].apply(parsing)
 
-        grouped = df.groupby("Инициалы дизайнера")[["Выкупили на сумму, ₽"]].sum()
+        grouped_profit = df.groupby("Инициалы дизайнера")[["Выкупили на сумму, ₽"]].sum()
+        grouped_not_profit = df.groupby("Инициалы дизайнера")[["Заказали на сумму, ₽"]].sum()
 
         if designer:
-            val = float(grouped.loc[designer]["Выкупили на сумму, ₽"])
+            val_profit = float(grouped_profit.loc[designer]["Выкупили на сумму, ₽"])
+            val_not_profit = float(grouped_not_profit.loc[designer]["Заказали на сумму, ₽"])
 
         else:
             val = 0
 
-        values.append(val)
-
-    return values
+        value_profit.append(val_profit)
+        value_not_profit.append(val_not_profit)
+    return [value_profit, value_not_profit]
 
 # Для всех дизайнеров в листе/месяце
-def designers_sum(sheet_dict: Dict[str, pd.DataFrame]) -> List[float]:
+def designers_sum(sheet_dict: Dict[str, pd.DataFrame]) -> List[List[float]]:
+    print("функция запустилась")
     values = []
-    sheet_names = []
+    value_profit = []
+    value_not_profit = []
+    i = 0
     for sheet_name, df in sheet_dict.items():
         if df is None or df.empty or "Артикул продавца" not in df.columns:
             values.append(0)
             continue
-        sheet_names.append(sheet_name)
-
+        print("Идёт")
         df['Инициалы дизайнера'] = df["Артикул продавца"].apply(parsing)
-        grouped = df.groupby("Инициалы дизайнера")[["Выкупили на сумму, ₽"]].sum()
+        grouped_profit = df.groupby("Инициалы дизайнера")[["Выкупили на сумму, ₽"]].sum()
+        grouped_not_profit = df.groupby("Инициалы дизайнера")[["Заказали на сумму, ₽"]].sum()
 
-        total = grouped["Выкупили на сумму, ₽"].sum()
-        values.append(float(total))
+        summa = grouped_profit["Выкупили на сумму, ₽"].sum()
+        value_profit.append(float(summa))
+        summa = grouped_not_profit["Заказали на сумму, ₽"].sum()
+        value_not_profit.append(float(summa))
+        print("Всё еще идёт?")
 
-    print(values)
-    print(sheet_names)
+    values = [value_profit, value_not_profit]
     return values
 
 
 # Для всех категорий в листе/месяце
-def categories_sum(sheet_dict: Dict[str, pd.DataFrame]) -> List[float]:
-    values = []
+def categories_sum(sheet_dict: Dict[str, pd.DataFrame]) -> List[List[float]]:
+    value_profit = []
+    value_not_profit = []
+
     for sheet_name, df in sheet_dict.items():
         if df is None or df.empty or "Предмет" not in df.columns:
-            values.append(0)
+            value_profit.append(0)
+            value_not_profit.append(0)
             continue
 
-        grouped = df.groupby("Предмет")[["Выкупили на сумму, ₽"]].sum()
-        total = grouped["Выкупили на сумму, ₽"].sum()
-        values.append(float(total))
+        grouped = df.groupby("Предмет")[["Выкупили на сумму, ₽", "Заказали на сумму, ₽"]].sum()
+        profit = grouped["Выкупили на сумму, ₽"].sum()
+        not_profit = grouped["Заказали на сумму, ₽"].sum()
 
-    return values
+        value_profit.append(float(profit))
+        value_not_profit.append(float(not_profit))
+
+    return [value_profit, value_not_profit]
 
 
 # По одной категории по месяцам
-def category_sum(sheet_dict: Dict[str, pd.DataFrame], category: str) -> List[float]:
-    values = []
+def category_sum(sheet_dict: Dict[str, pd.DataFrame], category: str) -> List[List[float]]:
+    value_profit = []
+    value_not_profit = []
+
     for sheet_name, df in sheet_dict.items():
         if df is None or df.empty or "Предмет" not in df.columns:
-            values.append(0)
+            value_profit.append(0)
+            value_not_profit.append(0)
             continue
 
-        grouped = df.groupby("Предмет")[["Выкупили на сумму, ₽"]].sum()
+        grouped = df.groupby("Предмет")[["Выкупили на сумму, ₽", "Заказали на сумму, ₽"]].sum()
 
-        val = float(grouped.loc[category]["Выкупили на сумму, ₽"]) if category in grouped.index else 0
-        values.append(val)
+        if category in grouped.index:
+            val_profit = float(grouped.loc[category]["Выкупили на сумму, ₽"])
+            val_not_profit = float(grouped.loc[category]["Заказали на сумму, ₽"])
+        else:
+            val_profit = 0
+            val_not_profit = 0
 
-    return values
+        value_profit.append(val_profit)
+        value_not_profit.append(val_not_profit)
+
+    return [value_profit, value_not_profit]
+
 
 
 # По одному артикулу по месяцам
-def good_sum(sheet_dict: Dict[str, pd.DataFrame], article: Any) -> List[float]:
-    values = []
+def good_sum(sheet_dict: Dict[str, pd.DataFrame], article: Any) -> List[List[float]]:
+    value_profit = []
+    value_not_profit = []
+
     for sheet_name, df in sheet_dict.items():
         if df is None or df.empty or "Артикул продавца" not in df.columns:
-            values.append(0)
+            value_profit.append(0)
+            value_not_profit.append(0)
             continue
 
         filtered = df[df["Артикул продавца"] == article]
-        val = float(filtered["Выкупили на сумму, ₽"].sum()) if not filtered.empty else 0
-        values.append(val)
 
-    return values
+        profit = float(filtered["Выкупили на сумму, ₽"].sum()) if not filtered.empty else 0
+        not_profit = float(filtered["Заказали на сумму, ₽"].sum()) if not filtered.empty else 0
+
+        value_profit.append(profit)
+        value_not_profit.append(not_profit)
+
+    return [value_profit, value_not_profit]
+
 
 
 
 # По всем артикулам в листе/месяце
-def goods_sum(sheet_dict: Dict[str, pd.DataFrame]) -> List[float]:
-    values = []
+def goods_sum(sheet_dict: Dict[str, pd.DataFrame]) -> List[List[float]]:
+    value_profit = []
+    value_not_profit = []
+
     for sheet_name, df in sheet_dict.items():
         if df is None or df.empty or "Артикул продавца" not in df.columns:
-            values.append(0)
+            value_profit.append(0)
+            value_not_profit.append(0)
             continue
 
-        total = df["Выкупили на сумму, ₽"].sum()
-        values.append(float(total))
+        profit = float(df["Выкупили на сумму, ₽"].sum())
+        not_profit = float(df["Заказали на сумму, ₽"].sum())
 
-    return values
+        value_profit.append(profit)
+        value_not_profit.append(not_profit)
+
+    return [value_profit, value_not_profit]
+

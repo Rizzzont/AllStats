@@ -1,24 +1,24 @@
 {% load static %}
-{% csrf_token %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AlaStats - Рекомендации ИИ</title>
-  <link rel="stylesheet" href="{% static 'main/css/rec.css'%}"><!-- Подключаешь CSS, что выше -->
+  <link rel="stylesheet" href="{% static 'main/css/rec.css' %}">
 </head>
 <body>
+  {% csrf_token %}
   <header>
     <nav class="container_section container">
       <div class="nav_left">AlaStats</div>
       <div class="nav_right">
         <ul class="nav_list">
-            <li class="nav_list_item"><a href="{% url 'main' %}">Главная</a></li>
-            <li class="nav_list_item"><a href="{% url 'analytics' %}">Аналитика</a></li>
-            <li class="nav_list_item"><a href="{% url 'recomendations' %}">Рекомендации ИИ</a></li>
-            <li class="nav_list_item"><a href="{% url 'private_requests' %}">Частые запросы</a></li>
-            <li class="nav_list_item"><a href="{% url 'upload' %}">Загрузить файл</a></li>
+          <li class="nav_list_item"><a href="{% url 'main' %}">Главная</a></li>
+          <li class="nav_list_item"><a href="{% url 'analytics' %}">Аналитика</a></li>
+          <li class="nav_list_item"><a href="{% url 'recomendations' %}">Рекомендации ИИ</a></li>
+          <li class="nav_list_item"><a href="{% url 'private_requests' %}">Частые запросы</a></li>
+          <li class="nav_list_item"><a href="{% url 'upload' %}">Загрузить файл</a></li>
         </ul>
       </div>
     </nav>
@@ -36,7 +36,9 @@
         </div>
         <div class="ai-response" id="aiResponseBlock">
           <h3>Рекомендации ИИ</h3>
-          <p class="response-text" id="aiResponseText">Здесь будут отображаться рекомендации искусственного интеллекта по вашему запросу.</p>
+          <p class="response-text" id="aiResponseText">
+            Здесь будут отображаться рекомендации искусственного интеллекта по вашему запросу.
+          </p>
           <button class="submit-btn" onclick="downloadResponse()">Скачать ответ</button>
         </div>
         <div class="file-and-actions">
@@ -62,21 +64,34 @@
     </div>
   </footer>
 
-  <!-- Скрипты и твоя логика тут -->
+  <!-- Модальное окно для ответа -->
+  <div id="dialogModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0007;z-index:9999;justify-content:center;align-items:center;">
+    <div style="background:#fff;padding:2em;max-width:480px;width:90vw;border-radius:16px;box-shadow:0 2px 16px #0003;position:relative;">
+      <span id="closeModal" style="position:absolute;right:1em;top:1em;cursor:pointer;font-size:24px;">&times;</span>
+      <h3>Ответ ИИ</h3>
+      <div id="modalText" style="margin-top:1em;white-space:pre-line;"></div>
+    </div>
+  </div>
+
+  <!-- Скрипты -->
   <script>
     function setTemplate(text) {
       document.getElementById('aiInput').value = text;
     }
+
     function clearAll() {
       document.getElementById('aiInput').value = '';
-      document.getElementById('aiResponseText').innerText = 'Здесь будут отображаться рекомендации искусственного интеллекта по вашему запросу.';
+      document.getElementById('aiResponseText').innerText =
+        'Здесь будут отображаться рекомендации искусственного интеллекта по вашему запросу.';
       document.getElementById('fileInput').value = '';
       document.getElementById('fileName').innerText = '';
-      document.getElementById('extraQuestion').value = '';
     }
-    document.getElementById('fileInput').addEventListener('change', function(){
-      document.getElementById('fileName').innerText = this.files.length ? this.files[0].name : '';
+
+    document.getElementById('fileInput').addEventListener('change', function() {
+      document.getElementById('fileName').innerText =
+        this.files.length ? this.files[0].name : '';
     });
+
     function downloadResponse() {
       const text = document.getElementById('aiResponseText').innerText;
       const blob = new Blob([text], {type: 'text/plain'});
@@ -85,23 +100,41 @@
       a.download = 'ai_response.txt';
       a.click();
     }
+
     function sendRequest() {
       let query = document.getElementById('aiInput').value.trim();
-      let fileInfo = document.getElementById('fileInput').files.length
-          ? '\n\n(Файл: ' + document.getElementById('fileInput').files[0].name + ')'
-          : '';
-      if (query) {
-          document.getElementById('aiResponseText').innerText = 'Это пример ответа ИИ на ваш запрос: ' + query + fileInfo;
-      } else {
-          document.getElementById('aiResponseText').innerText = 'Пожалуйста, введите ваш запрос!';
+      let responseElem = document.getElementById('aiResponseText');
+      if (!query) {
+        responseElem.innerText = 'Пожалуйста, введите ваш запрос!';
+        return;
       }
+      responseElem.innerText = "ИИ думает...";
+
+      fetch("{% url 'ai_freegpt' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: JSON.stringify({prompt: query})
+      })
+      .then(resp => resp.json())
+      .then(data => {
+        responseElem.innerText = data.answer || "Ошибка при получении ответа!";
+      })
+      .catch(() => {
+        responseElem.innerText = "Ошибка соединения с ИИ!";
+      });
     }
-    function askExtra() {
-      let extra = document.getElementById('extraQuestion').value.trim();
-      if(extra) {
-          document.getElementById('aiResponseText').innerText += '\n\n(Доп. вопрос: ' + extra + ')';
-          document.getElementById('extraQuestion').value = '';
-      }
+
+    // Модальное окно
+    document.getElementById('closeModal').onclick = () => {
+      document.getElementById('dialogModal').style.display = 'none';
+    };
+    function showDialog() {
+      document.getElementById('modalText').innerText =
+        document.getElementById('aiResponseText').innerText;
+      document.getElementById('dialogModal').style.display = 'flex';
     }
   </script>
 </body>

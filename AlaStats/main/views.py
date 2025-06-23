@@ -6,6 +6,9 @@ from django.core.serializers.json import DjangoJSONEncoder
 import json
 import pickle
 from django.http import JsonResponse
+import requests
+
+from django.views.decorators.csrf import csrf_exempt
 
 from main.functions import main_info, main_analytic, designer_sum, designers_sum, category_sum, categories_sum, good_sum, goods_sum
 import pandas as pd
@@ -114,6 +117,7 @@ def analytics_api(request):
 
         elif func == "chartDizs":
             values = designers_sum(sheet_dict)
+            print(values)
 
         elif func == "chartCategorys":
             values = categories_sum(sheet_dict)
@@ -124,7 +128,8 @@ def analytics_api(request):
         else:
             return JsonResponse({"error": "Неверный параметр func"}, status=400)
 
-        return JsonResponse({"labels": months, "values": values})
+        print(values)
+        return JsonResponse({"labels": months, "value_profit": values[0], "value_not_profit": values[1]})
 
     except Exception as e:
         return JsonResponse({"error": f"Ошибка обработки: {str(e)}"}, status=500)
@@ -147,3 +152,28 @@ def delete_data(request):
         os.remove(path)
     request.session["data_path"] = None
     return redirect("main")
+
+
+GPT_LOCAL_API_URL = "http://localhost:1234/v1/chat/completions"
+MODEL_NAME = "google/gemma-3-1b"
+
+@csrf_exempt
+def freegpt_proxy(request):
+    if request.method == "POST":
+        body = json.loads(request.body)
+        prompt = body.get("prompt", "")
+        payload = {
+            "model": MODEL_NAME,
+            "messages": [
+                {"role": "user", "content": prompt}
+            ]
+        }
+        try:
+            resp = requests.post(GPT_LOCAL_API_URL, json=payload, timeout=120)
+            data = resp.json()
+            answer = data.get("choices", [{}])[0].get("message", {}).get("content", "Ошибка: пустой ответ")
+            return JsonResponse({"answer": answer})
+        except Exception as e:
+            return JsonResponse({"answer": f"Ошибка при обращении к LM Studio: {e}"})
+    return JsonResponse({"error": "Only POST allowed"}, status=405)
+

@@ -56,14 +56,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const data = await fetchChartData(selectedChart, userInput);
 
-        let labelText = chartSelect.options[chartSelect.selectedIndex].text;
-        if (userInput) labelText += ` (${userInput})`;
+        const labelText = chartSelect.options[chartSelect.selectedIndex].text;
+        const inputSuffix = userInput ? ` (${userInput})` : "";
 
         currentChart.data.labels = data.labels || [];
-        currentChart.data.datasets[0].label = labelText;
-        currentChart.data.datasets[0].data = data.values || [];
+        currentChart.data.datasets = []; // очищаем старые данные
+
+        // 1️⃣ Первый набор данных: "Выкупили"
+        currentChart.data.datasets.push({
+            label: `Выкупили на сумму, ₽${inputSuffix}`,
+            data: data.value_profit || [],
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        });
+
+        // 2️⃣ Второй набор данных: "Заказали"
+        currentChart.data.datasets.push({
+            label: `Заказали на сумму, ₽${inputSuffix}`,
+            data: data.value_not_profit || [],
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1
+        });
+
         currentChart.update();
     }
+
 
     chartSelect.addEventListener('change', function () {
         const value = this.value;
