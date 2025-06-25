@@ -1,0 +1,141 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Аналитика продаж по тематикам</title>
+  <link rel="stylesheet" href="{% static 'main/css/sells.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<header>
+  <nav class="container">
+    <div class="nav_left">AlaStats</div>
+    <ul class="nav_list">
+                    <li class="nav_list_item"><a href="{% url 'main' %}">Главная</a></li>
+                    <li class="nav_list_item"><a href="{% url 'analytics' %}">Аналитика</a></li>
+                    <li class="nav_list_item"><a href="{% url 'recomendations' %}">Рекомендации ИИ</a></li>
+                    <li class="nav_list_item"><a href="{% url 'sells' %}">Продажи</a></li>
+                    <li class="nav_list_item"><a href="{% url 'upload' %}">Загрузить файл</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="container">
+  <main class="main">
+    <!-- Левая колонка -->
+    <section class="main_left-wrapper">
+      <div class="card">
+        <h2 class="card-title">Продажи по тематикам</h2>
+        <input
+          type="text"
+          id="themeSearch"
+          class="table-search"
+          placeholder="Поиск по тематикам..."
+          oninput="filterTableRows()"
+        >
+        <div class="table-scroll">
+          <table id="thematicTable" class="thematic-table">
+            <thead>
+              <tr>
+                <th>Тематика</th>
+                <th>Продажи</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- JS строки -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Правая колонка -->
+    <section class="main_right-wrapper">
+      <div class="main_graph">
+        <h2 class="card-title">График продаж по тематикам</h2>
+        <div class="chart-container">
+          <canvas id="themeChart"></canvas>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<!-- ...скрипты без изменений... -->
+ <script>
+    /* ↓ ДАННЫЕ ДЛЯ ДЕМОНСТРАЦИИ (будут приходить из Python как JSON) ↓ */
+
+const dataFromJson = {{ data_json|safe }};
+
+let filteredData = dataFromJson.slice();
+
+function fillTable(data) {
+  const tbody = document.querySelector("#thematicTable tbody");
+  tbody.innerHTML = "";
+
+  // Показываем только первые 100 строк
+  data.slice(0, 100).forEach(row => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${row.theme}</td>
+        <td>${row.sales.toLocaleString('ru-RU')} ₽</td>
+      </tr>
+    `;
+  });
+}
+
+
+function filterTableRows() {
+  const value = document.getElementById('themeSearch').value.trim().toLowerCase();
+  filteredData = dataFromJson.filter(row => row.theme.toLowerCase().includes(value));
+  fillTable(filteredData);
+  drawChart(filteredData);
+}
+
+/* --- Отрисовка графика --- */
+function drawChart(data) {
+  const ctx = document.getElementById('themeChart').getContext('2d');
+
+  if (window.themeChart instanceof Chart) {
+    window.themeChart.destroy();
+  }
+
+  const top10 = data.slice(0, 10);
+
+  window.themeChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: top10.map(row => row.theme),
+      datasets: [{
+        label: 'Продажи',
+        data: top10.map(row => row.sales),
+        backgroundColor: 'rgba(145, 72, 205, 0.22)',
+        borderColor: '#9148cd',
+        borderWidth: 2,
+        borderRadius: 7,
+        maxBarThickness: 44,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: true }
+      },
+      scales: {
+        x: { ticks: { font: { size: 15 } }, grid: { display: false } },
+        y: { beginAtZero: true, ticks: { font: { size: 15 } } }
+      }
+    }
+  });
+}
+
+
+
+/* --- Инициализация --- */
+fillTable(dataFromJson);
+drawChart(dataFromJson);
+</script>
+</body>
+</html>

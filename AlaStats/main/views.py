@@ -10,7 +10,8 @@ import requests
 
 from django.views.decorators.csrf import csrf_exempt
 
-from main.functions import main_info, main_analytic, designer_sum, designers_sum, category_sum, categories_sum, good_sum, goods_sum
+from main.functions import (main_info, main_analytic, designer_sum, designers_sum, category_sum,
+                            categories_sum, good_sum, goods_sum, last)
 import pandas as pd
 import tempfile
 
@@ -30,13 +31,16 @@ def upload_excel(request):
             for chunk in uploaded_file.chunks():
                 f.write(chunk)
 
-        # Чтение всех листов
-        all_sheets = pd.read_excel(excel_path, sheet_name=None)
+        # Оптимизированное чтение
+        xls = pd.ExcelFile(excel_path)
+        all_sheets = {
+            name: xls.parse(name)  # можно добавить usecols/nrows при необходимости
+            for name in xls.sheet_names
+        }
 
-        # Сохраняем в pickle как dict
         pickle_path = os.path.join(temp_dir, "data.pkl")
         with open(pickle_path, "wb") as f:
-            pickle.dump(all_sheets, f)
+            pickle.dump(all_sheets, f, protocol=pickle.HIGHEST_PROTOCOL)
 
         request.session["data_path"] = pickle_path
         return redirect("main")
@@ -138,8 +142,20 @@ def recomendations(request):
     return render(request, "main/rec.html")
 
 
-def private_requests(request):
-    return render(request, "main/request.html")
+def sells(request):
+    # Загружаем Excel-файл
+    data_path = request.session.get("data_path")
+    if not data_path or not os.path.exists(data_path):
+        return JsonResponse({"error": "Нет данных"}, status=400)
+
+    with open(data_path, "rb") as f:
+        xls = pickle.load(f)  # путь к файлу
+
+    data = last(xls, month_choice="year")
+
+    return render(request, "main/sells.html", {
+        "data_json": data
+    })
 
 
 def custom_404_view(request, exception):
@@ -172,6 +188,7 @@ def freegpt_proxy(request):
             resp = requests.post(GPT_LOCAL_API_URL, json=payload, timeout=120)
             data = resp.json()
             answer = data.get("choices", [{}])[0].get("message", {}).get("content", "Ошибка: пустой ответ")
+            print(answer)
             return JsonResponse({"answer": answer})
         except Exception as e:
             return JsonResponse({"answer": f"Ошибка при обращении к LM Studio: {e}"})

@@ -2,6 +2,7 @@ import re
 from enum import unique
 import pandas as pd
 import json
+import os
 from typing import Dict, Any, List, Optional
 
 
@@ -26,42 +27,39 @@ def parse_delivery_time(value):
 def main_info(sheet_dict):
     profit = 0
     orders = 0
-    rate = [0, 0]
-    delivery_time = [0, 0]
+    rate_sum = 0
+    rate_count = 0
+    delivery_sum = 0
+    delivery_count = 0
 
-    for sheet_name, df in sheet_dict.items():
-        for _, row in df.iterrows():
-            try:
-                profit += int(row["Выкупили на сумму, ₽"])
-            except (ValueError, TypeError, KeyError):
-                pass
+    for df in sheet_dict.values():
+        if "Выкупили на сумму, ₽" in df:
+            profit += pd.to_numeric(df["Выкупили на сумму, ₽"], errors="coerce").sum(skipna=True)
 
-            try:
-                orders += int(row["Заказали, шт"])
-            except (ValueError, TypeError, KeyError):
-                pass
+        if "Заказали, шт" in df:
+            orders += pd.to_numeric(df["Заказали, шт"], errors="coerce").sum(skipna=True)
 
-            try:
-                rate[0] += float(row["Рейтинг карточки"])
-                rate[1] += 1
-            except (ValueError, TypeError, KeyError):
-                pass
+        if "Рейтинг карточки" in df:
+            rate_series = pd.to_numeric(df["Рейтинг карточки"], errors="coerce")
+            rate_sum += rate_series.sum(skipna=True)
+            rate_count += rate_series.count()
 
-            try:
-                delivery_time[0] += parse_delivery_time(row["Среднее время доставки"])
-                delivery_time[1] += 1
-            except (ValueError, TypeError, KeyError):
-                pass
+        if "Среднее время доставки" in df:
+            times = df["Среднее время доставки"].dropna().apply(parse_delivery_time)
+            delivery_sum += times.sum()
+            delivery_count += times.count()
 
-    rate_result = round(rate[0] / rate[1], 1) if rate[1] else 0
-    avg_delivery_hours = delivery_time[0] / delivery_time[1] if delivery_time[1] else 0
+    rate_result = round(rate_sum / rate_count, 1) if rate_count else 0
+    avg_delivery_hours = delivery_sum / delivery_count if delivery_count else 0
     delivery_str = f"{int(avg_delivery_hours // 24)}д {int(avg_delivery_hours % 24)}ч"
+
     return {
-        "profit": profit,
-        "orders": orders,
+        "profit": int(profit),
+        "orders": int(orders),
         "rate": rate_result,
         "delivery_time": delivery_str
     }
+
 
 
 def main_analytic(sheet_dict):
@@ -73,23 +71,22 @@ def main_analytic(sheet_dict):
         total_sales = 0
         total_profit = 0
 
-        if "Выкупили, шт" in df.columns and "Выкупили на сумму, ₽" in df.columns:
-            for _, row in df.iterrows():
-                try:
-                    total_sales += int(row["Выкупили, шт"])
-                    total_profit += int(row["Выкупили на сумму, ₽"])
-                except (ValueError, TypeError, KeyError):
-                    continue
+        if "Выкупили, шт" in df.columns:
+            total_sales = pd.to_numeric(df["Выкупили, шт"], errors="coerce").sum(skipna=True)
+
+        if "Выкупили на сумму, ₽" in df.columns:
+            total_profit = pd.to_numeric(df["Выкупили на сумму, ₽"], errors="coerce").sum(skipna=True)
 
         chart_names.append(sheet_name)
-        chart_sales.append(total_sales)
-        chart_profit.append(total_profit)
+        chart_sales.append(int(total_sales))
+        chart_profit.append(int(total_profit))
 
     return {
         "chart_sales": chart_sales,
         "chart_profit": chart_profit,
         "chart_names": chart_names
     }
+
 
 
 def remove_elements(lst):
@@ -281,4 +278,63 @@ def goods_sum(sheet_dict: Dict[str, pd.DataFrame]) -> List[List[float]]:
         value_not_profit.append(not_profit)
 
     return [value_profit, value_not_profit]
+
+
+def load_stopwords(path):
+    words = set()
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            words.update(word.lower() for word in line.split())
+    return words
+
+def extract_keywords(name, stopwords):
+    return tuple(sorted(set(str(name).lower().split()) - stopwords))
+
+def process_sheet(df, stopwords, info):
+    df = df.dropna(subset=["Название", "Заказали, шт"])
+    df["keywords"] = (
+        df["Название"]
+        .astype(str)
+        .str.lower()
+        .str.split()
+        .apply(lambda words: tuple(sorted(set(words) - stopwords)))
+    )
+
+    grouped = df.groupby("keywords")["Заказали, шт"].sum()
+    for key, sales in grouped.items():
+        info[key] = info.get(key, 0) + sales
+
+def last(xls, month_choice="year"):
+    COLUMNS = ["Название", "Предмет", "Заказали, шт"]
+    STOPWORDS_FILE = os.path.join(os.path.dirname(__file__), "text.txt")
+    stopwords = load_stopwords(STOPWORDS_FILE)
+    info = {}
+
+    all_sheets = list(xls.keys())
+
+    if month_choice == "year":
+        sheets_to_process = all_sheets
+    else:
+        try:
+            sheets_to_process = [all_sheets[int(month_choice) - 1]]
+        except (ValueError, IndexError):
+            return []
+
+    for sheet in sheets_to_process:
+        df = xls[sheet]
+        if all(col in df.columns for col in COLUMNS):
+            df = df.dropna(subset=["Название", "Заказали, шт"])
+            df["keywords"] = (
+                df["Название"]
+                .astype(str)
+                .str.lower()
+                .str.split()
+                .apply(lambda words: tuple(sorted(set(words) - stopwords)))
+            )
+            grouped = df.groupby("keywords")["Заказали, шт"].sum()
+            for key, sales in grouped.items():
+                info[key] = info.get(key, 0) + sales
+
+    result = [{"theme": " ".join(k), "products": 1, "sales": v} for k, v in info.items()]
+    return sorted(result, key=lambda x: x["sales"], reverse=True)[2:100]
 
