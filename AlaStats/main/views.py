@@ -10,7 +10,7 @@ from django.http import JsonResponse
 import requests
 from django.views.decorators.csrf import csrf_exempt
 from main.functions import (main_info, main_analytic, designer_sum, designers_sum, category_sum,
-                            categories_sum, good_sum, goods_sum, last)
+                            categories_sum, good_sum, goods_sum, last, get_card_data_from_excel)
 import pandas as pd
 import tempfile
 import os, zipfile
@@ -72,7 +72,6 @@ def load_sheet_dict(request):
     with open(data_path, "rb") as f:
         return pickle.load(f)
 
-# Главная страница аналитики
 def analytics_view(request):
     return render(request, "main/anal.html")
 
@@ -114,19 +113,39 @@ def analytics_api(request):
 
         elif func == "chartDizs":
             values = designers_sum(sheet_dict)
-            print(values)
+            return JsonResponse({
+                "labels": values[0],
+                "value_profit": values[1],
+                "value_not_profit": values[2],
+                "value_sales": values[3],
+                "value_not_sales": values[4]
+            })
 
         elif func == "chartCategorys":
             values = categories_sum(sheet_dict)
+            return JsonResponse({
+                "labels": values[0],
+                "value_profit": values[1],
+                "value_not_profit": values[2],
+                "value_sales": values[3],
+                "value_not_sales": values[4]
+            })
 
         elif func == "chartGoods":
             values = goods_sum(sheet_dict)
+            return JsonResponse({
+                "labels": values[0],
+                "value_profit": values[1],
+                "value_not_profit": values[2],
+                "value_sales": values[3],
+                "value_not_sales": values[4]
+            })
 
         else:
             return JsonResponse({"error": "Неверный параметр func"}, status=400)
 
-        print(values)
-        return JsonResponse({"labels": months, "value_profit": values[0], "value_not_profit": values[1]})
+        return JsonResponse({"labels": months, "value_profit": values[0], "value_not_profit": values[1], "value_sales": values[2],
+                "value_not_sales": values[3]})
 
     except Exception as e:
         return JsonResponse({"error": f"Ошибка обработки: {str(e)}"}, status=500)
@@ -136,13 +155,12 @@ def recomendations(request):
 
 
 def sells(request):
-    # Загружаем Excel-файл
     data_path = request.session.get("data_path")
     if not data_path or not os.path.exists(data_path):
         return JsonResponse({"error": "Нет данных"}, status=400)
 
     with open(data_path, "rb") as f:
-        xls = pickle.load(f)  # путь к файлу
+        xls = pickle.load(f)
 
     data = last(xls, month_choice="year")
 
@@ -185,4 +203,39 @@ def freegpt_proxy(request):
         except Exception as e:
             return JsonResponse({"answer": f"Ошибка при обращении к LM Studio: {e}"})
     return JsonResponse({"error": "Only POST allowed"}, status=405)
+
+def information(request):
+    cards = None
+    article = ""
+
+    if request.method == "POST":
+        article = request.POST.get("article", "").strip()
+
+        data_path = request.session.get("data_path")
+        if data_path and os.path.exists(data_path):
+            with open(data_path, "rb") as f:
+                sheet_dict = pickle.load(f)
+
+            cards = get_card_data_from_excel(sheet_dict, article)
+
+    return render(request, "main/good_page.html", {"cards": cards, "article": article})
+
+def autocomplete_goods(request):
+    term = request.GET.get("term", "").strip().lower()
+    data_path = request.session.get("data_path")
+
+    if not data_path or not os.path.exists(data_path):
+        return JsonResponse([], safe=False)
+
+    with open(data_path, "rb") as f:
+        sheet_dict = pickle.load(f)
+
+    articles = set()
+    for df in sheet_dict.values():
+        if df is not None and not df.empty and "Артикул продавца" in df.columns:
+            articles.update(df["Артикул продавца"].dropna().astype(str).unique())
+
+    filtered = [a for a in articles if term in a.lower()]
+    return JsonResponse(filtered[:10], safe=False)
+
 

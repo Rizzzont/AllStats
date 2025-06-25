@@ -1,9 +1,8 @@
 import re
-from enum import unique
+from operator import index
 import pandas as pd
-import json
 import os
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 
 
 def parse_delivery_time(value):
@@ -22,6 +21,18 @@ def parse_delivery_time(value):
         hours = int(match_hours.group(1))
 
     return days * 24 + hours
+
+def parse_delivery_time_second(value):
+    if not isinstance(value, str):
+        return 0
+
+    days_matches = re.findall(r"(\d+)\s*д", value)
+    hours_matches = re.findall(r"(\d+)\s*ч", value)
+
+    total_days = sum(int(d) for d in days_matches)
+    total_hours = sum(int(h) for h in hours_matches)
+
+    return total_days * 24 + total_hours
 
 
 def main_info(sheet_dict):
@@ -60,8 +71,6 @@ def main_info(sheet_dict):
         "delivery_time": delivery_str
     }
 
-
-
 def main_analytic(sheet_dict):
     chart_sales = []
     chart_profit = []
@@ -87,12 +96,9 @@ def main_analytic(sheet_dict):
         "chart_names": chart_names
     }
 
-
-
 def remove_elements(lst):
     elements_to_remove = {"TEAM", "FON", "NABOR", "ROD", "VES", "KD"}
     return [item for item in lst if item not in elements_to_remove]
-
 
 def parsing(art):
     if pd.isna(art):
@@ -123,19 +129,21 @@ def parsing(art):
         else:
             return None
 
-
-# Для дизайнера по месяцам
 def designer_sum(sheet_dict: Dict[str, pd.DataFrame], designer: str) -> List[float]:
     value_profit = []
     value_not_profit = []
+    value_sales = []
+    value_not_sales = []
     for sheet_name, df in sheet_dict.items():
 
         if df is None or df.empty:
             value_profit.append(0)
+            print("Такого нет")
             continue
 
         if "Артикул продавца" not in df.columns:
             value_profit.append(0)
+            print("Такого нет 2")
             continue
 
         if df is None or df.empty:
@@ -150,132 +158,225 @@ def designer_sum(sheet_dict: Dict[str, pd.DataFrame], designer: str) -> List[flo
 
         grouped_profit = df.groupby("Инициалы дизайнера")[["Выкупили на сумму, ₽"]].sum()
         grouped_not_profit = df.groupby("Инициалы дизайнера")[["Заказали на сумму, ₽"]].sum()
+        grouped_sales = df.groupby("Инициалы дизайнера")[["Выкупили, шт"]].sum()
+        grouped_not_sales = df.groupby("Инициалы дизайнера")[["Заказали, шт"]].sum()
 
         if designer:
             val_profit = float(grouped_profit.loc[designer]["Выкупили на сумму, ₽"])
             val_not_profit = float(grouped_not_profit.loc[designer]["Заказали на сумму, ₽"])
+            val_sales = float(grouped_sales.loc[designer]["Выкупили, шт"])
+            val_not_sales = float(grouped_not_sales.loc[designer]["Заказали, шт"])
+
 
         else:
             val = 0
 
+
         value_profit.append(val_profit)
         value_not_profit.append(val_not_profit)
-    return [value_profit, value_not_profit]
+        value_sales.append(val_sales)
+        value_not_sales.append(val_not_sales)
+    print([value_profit, value_not_profit, value_sales, value_not_sales])
+    return [value_profit, value_not_profit, value_sales, value_not_sales]
 
-# Для всех дизайнеров в листе/месяце
 def designers_sum(sheet_dict: Dict[str, pd.DataFrame]) -> List[List[float]]:
-    print("функция запустилась")
-    values = []
-    value_profit = []
-    value_not_profit = []
-    i = 0
-    for sheet_name, df in sheet_dict.items():
+    all_data = []
+
+    for df in sheet_dict.values():
         if df is None or df.empty or "Артикул продавца" not in df.columns:
-            values.append(0)
             continue
-        print("Идёт")
-        df['Инициалы дизайнера'] = df["Артикул продавца"].apply(parsing)
-        grouped_profit = df.groupby("Инициалы дизайнера")[["Выкупили на сумму, ₽"]].sum()
-        grouped_not_profit = df.groupby("Инициалы дизайнера")[["Заказали на сумму, ₽"]].sum()
+        df["Инициалы дизайнера"] = df["Артикул продавца"].apply(parsing)
+        all_data.append(df)
 
-        summa = grouped_profit["Выкупили на сумму, ₽"].sum()
-        value_profit.append(float(summa))
-        summa = grouped_not_profit["Заказали на сумму, ₽"].sum()
-        value_not_profit.append(float(summa))
-        print("Всё еще идёт?")
+    if not all_data:
+        return []
 
-    values = [value_profit, value_not_profit]
-    return values
+    full_df = pd.concat(all_data, ignore_index=True)
 
+    full_df = full_df.dropna(subset=[
+        "Инициалы дизайнера", "Выкупили на сумму, ₽", "Заказали на сумму, ₽",
+        "Выкупили, шт", "Заказали, шт"
+    ])
 
-# Для всех категорий в листе/месяце
+    grouped = full_df.groupby("Инициалы дизайнера")[[
+        "Выкупили на сумму, ₽", "Заказали на сумму, ₽",
+        "Выкупили, шт", "Заказали, шт"
+    ]].sum()
+
+    top10 = grouped.sort_values(by="Выкупили на сумму, ₽", ascending=False).head(15)
+
+    labels = []
+    profit = []
+    orders = []
+    sales = []
+    not_sales = []
+
+    for index, row in top10.iterrows():
+        labels.append(index)
+        profit.append(float(row["Выкупили на сумму, ₽"]))
+        orders.append(float(row["Заказали на сумму, ₽"]))
+        sales.append(float(row["Выкупили, шт"]))
+        not_sales.append(float(row["Заказали, шт"]))
+
+    return [labels, profit, orders, sales, not_sales]
+
 def categories_sum(sheet_dict: Dict[str, pd.DataFrame]) -> List[List[float]]:
-    value_profit = []
-    value_not_profit = []
+    all_data = []
 
-    for sheet_name, df in sheet_dict.items():
+    for df in sheet_dict.values():
         if df is None or df.empty or "Предмет" not in df.columns:
-            value_profit.append(0)
-            value_not_profit.append(0)
             continue
+        all_data.append(df)
 
-        grouped = df.groupby("Предмет")[["Выкупили на сумму, ₽", "Заказали на сумму, ₽"]].sum()
-        profit = grouped["Выкупили на сумму, ₽"].sum()
-        not_profit = grouped["Заказали на сумму, ₽"].sum()
+    if not all_data:
+        return []
 
-        value_profit.append(float(profit))
-        value_not_profit.append(float(not_profit))
+    full_df = pd.concat(all_data, ignore_index=True)
 
-    return [value_profit, value_not_profit]
+    full_df = full_df.dropna(subset=[
+        "Предмет", "Выкупили на сумму, ₽", "Заказали на сумму, ₽",
+        "Выкупили, шт", "Заказали, шт"
+    ])
 
+    grouped = full_df.groupby("Предмет")[[
+        "Выкупили на сумму, ₽", "Заказали на сумму, ₽",
+        "Выкупили, шт", "Заказали, шт"
+    ]].sum()
 
-# По одной категории по месяцам
+    top10 = grouped.sort_values(by="Выкупили на сумму, ₽", ascending=False).head(10)
+
+    labels = []
+    profit = []
+    orders = []
+    sales = []
+    not_sales = []
+
+    for index, row in top10.iterrows():
+        labels.append(index)
+        profit.append(float(row["Выкупили на сумму, ₽"]))
+        orders.append(float(row["Заказали на сумму, ₽"]))
+        sales.append(float(row["Выкупили, шт"]))
+        not_sales.append(float(row["Заказали, шт"]))
+
+    return [labels, profit, orders, sales, not_sales]
+
 def category_sum(sheet_dict: Dict[str, pd.DataFrame], category: str) -> List[List[float]]:
     value_profit = []
     value_not_profit = []
+    value_sales = []
+    value_not_sales = []
 
-    for sheet_name, df in sheet_dict.items():
+    for df in sheet_dict.values():
         if df is None or df.empty or "Предмет" not in df.columns:
             value_profit.append(0)
             value_not_profit.append(0)
+            value_sales.append(0)
+            value_not_sales.append(0)
             continue
 
-        grouped = df.groupby("Предмет")[["Выкупили на сумму, ₽", "Заказали на сумму, ₽"]].sum()
+        required = [
+            "Выкупили на сумму, ₽", "Заказали на сумму, ₽",
+            "Выкупили, шт", "Заказали, шт"
+        ]
+        if not all(col in df.columns for col in required):
+            value_profit.append(0)
+            value_not_profit.append(0)
+            value_sales.append(0)
+            value_not_sales.append(0)
+            continue
+
+        grouped = df.groupby("Предмет")[
+            ["Выкупили на сумму, ₽", "Заказали на сумму, ₽", "Выкупили, шт", "Заказали, шт"]
+        ].sum()
 
         if category in grouped.index:
-            val_profit = float(grouped.loc[category]["Выкупили на сумму, ₽"])
-            val_not_profit = float(grouped.loc[category]["Заказали на сумму, ₽"])
+            row = grouped.loc[category]
+            value_profit.append(float(row["Выкупили на сумму, ₽"]))
+            value_not_profit.append(float(row["Заказали на сумму, ₽"]))
+            value_sales.append(float(row["Выкупили, шт"]))
+            value_not_sales.append(float(row["Заказали, шт"]))
         else:
-            val_profit = 0
-            val_not_profit = 0
+            value_profit.append(0)
+            value_not_profit.append(0)
+            value_sales.append(0)
+            value_not_sales.append(0)
 
-        value_profit.append(val_profit)
-        value_not_profit.append(val_not_profit)
+    return [value_profit, value_not_profit, value_sales, value_not_sales]
 
-    return [value_profit, value_not_profit]
-
-
-
-# По одному артикулу по месяцам
 def good_sum(sheet_dict: Dict[str, pd.DataFrame], article: Any) -> List[List[float]]:
     value_profit = []
     value_not_profit = []
+    value_sales = []
+    value_not_sales = []
 
-    for sheet_name, df in sheet_dict.items():
+    for df in sheet_dict.values():
         if df is None or df.empty or "Артикул продавца" not in df.columns:
             value_profit.append(0)
             value_not_profit.append(0)
+            value_sales.append(0)
+            value_not_sales.append(0)
+            continue
+
+        required = [
+            "Выкупили на сумму, ₽", "Заказали на сумму, ₽",
+            "Выкупили, шт", "Заказали, шт"
+        ]
+        if not all(col in df.columns for col in required):
+            value_profit.append(0)
+            value_not_profit.append(0)
+            value_sales.append(0)
+            value_not_sales.append(0)
             continue
 
         filtered = df[df["Артикул продавца"] == article]
 
-        profit = float(filtered["Выкупили на сумму, ₽"].sum()) if not filtered.empty else 0
-        not_profit = float(filtered["Заказали на сумму, ₽"].sum()) if not filtered.empty else 0
+        value_profit.append(float(filtered["Выкупили на сумму, ₽"].sum()) if not filtered.empty else 0)
+        value_not_profit.append(float(filtered["Заказали на сумму, ₽"].sum()) if not filtered.empty else 0)
+        value_sales.append(float(filtered["Выкупили, шт"].sum()) if not filtered.empty else 0)
+        value_not_sales.append(float(filtered["Заказали, шт"].sum()) if not filtered.empty else 0)
 
-        value_profit.append(profit)
-        value_not_profit.append(not_profit)
+    return [value_profit, value_not_profit, value_sales, value_not_sales]
 
-    return [value_profit, value_not_profit]
-
-
-# По всем артикулам в листе/месяце
 def goods_sum(sheet_dict: Dict[str, pd.DataFrame]) -> List[List[float]]:
-    value_profit = []
-    value_not_profit = []
+    all_data = []
 
-    for sheet_name, df in sheet_dict.items():
+    for df in sheet_dict.values():
         if df is None or df.empty or "Артикул продавца" not in df.columns:
-            value_profit.append(0)
-            value_not_profit.append(0)
             continue
+        all_data.append(df)
 
-        profit = float(df["Выкупили на сумму, ₽"].sum())
-        not_profit = float(df["Заказали на сумму, ₽"].sum())
+    if not all_data:
+        return []
 
-        value_profit.append(profit)
-        value_not_profit.append(not_profit)
+    full_df = pd.concat(all_data, ignore_index=True)
 
-    return [value_profit, value_not_profit]
+    full_df = full_df.dropna(subset=[
+        "Артикул продавца", "Выкупили на сумму, ₽", "Заказали на сумму, ₽",
+        "Выкупили, шт", "Заказали, шт"
+    ])
+
+    grouped = full_df.groupby("Артикул продавца")[[
+        "Выкупили на сумму, ₽", "Заказали на сумму, ₽",
+        "Выкупили, шт", "Заказали, шт"
+    ]].sum()
+
+    top10 = grouped.sort_values(by="Выкупили на сумму, ₽", ascending=False).head(10)
+
+    labels = []
+    profit = []
+    orders = []
+    sales = []
+    not_sales = []
+
+    for index, row in top10.iterrows():
+        labels.append(index)
+        profit.append(float(row["Выкупили на сумму, ₽"]))
+        orders.append(float(row["Заказали на сумму, ₽"]))
+        sales.append(float(row["Выкупили, шт"]))
+        not_sales.append(float(row["Заказали, шт"]))
+
+    return [labels, profit, orders, sales, not_sales]
+
 
 
 def load_stopwords(path):
@@ -335,4 +436,44 @@ def last(xls, month_choice="year"):
 
     result = [{"theme": " ".join(k), "products": 1, "sales": v} for k, v in info.items()]
     return sorted(result, key=lambda x: x["sales"], reverse=True)[2:100]
+
+
+def get_card_data_from_excel(xl, article, article_col='Артикул продавца'):
+    dfs = []
+    for sheet_names, df in xl.items():
+        dfs.append(df)
+    df_full = pd.concat(dfs, ignore_index=True)
+
+    df_art = df_full[df_full[article_col] == article]
+    if df_art.empty:
+        return None
+
+    name = df_art["Название"].iloc[0]
+    subject = df_art["Предмет"].iloc[0]
+    designer = df_art["Бренд"].iloc[0]
+    avg_rating = df_art["Рейтинг по отзывам"].mean()
+
+    sum_transitions = df_art["Переходы в карточку"].sum()
+    sum_to_cart = df_art["Положили в корзину"].sum()
+    sum_ordered = df_art["Заказали, шт"].sum()
+    sum_purchased = df_art["Выкупили, шт"].sum()
+
+    avg_cart_conversion = df_art["Конверсия в корзину, %"].mean()
+    avg_order_conversion = df_art["Конверсия в заказ, %"].mean()
+    avg_purchase_percent = df_art["Процент выкупа"].mean()
+    avg_purchase_percent2 = df_art["Отменили, шт"].mean()
+
+    sum_ordered_rub = df_art["Заказали на сумму, ₽"].sum()
+    sum_to_cart_rub = df_art["Положили в корзину"].sum() if "Положили в корзину" in df_art.columns else 0
+    sum_purchased_rub = df_art["Выкупили на сумму, ₽"].sum()
+    sum_purchased_rub2 = sum_purchased_rub
+
+    cards = [
+        name, subject, designer, round(avg_rating, 2),
+        int(sum_transitions), int(sum_to_cart), int(sum_ordered), int(sum_purchased),
+        round(avg_cart_conversion, 2), round(avg_order_conversion, 2), round(avg_purchase_percent, 2),
+        int(avg_purchase_percent2),
+        int(sum_ordered_rub), int(sum_to_cart_rub), int(sum_purchased_rub), int(sum_purchased_rub2)
+    ]
+    return cards
 

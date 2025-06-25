@@ -10,6 +10,8 @@ urlpatterns = [
     path('analytics/', views.analytics_view, name='analytics'),
     path('api/analytics/', views.analytics_api, name='analytics_api'),
     path("ai_freegpt/", views.freegpt_proxy, name="ai_freegpt"),
+    path("information/", views.information, name="information"),
+    path('api/autocomplete_goods/', views.autocomplete_goods, name='autocomplete_goods'),
 ]
 
 handler404 = views.custom_404_view

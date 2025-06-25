@@ -29,6 +29,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    function debounce(func, delay) {
+    let timer;
+    return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
+
     async function fetchChartData(funcName, value = "") {
         const url = new URL("/api/analytics/", window.location.origin);
         url.searchParams.append("func", funcName);
@@ -61,18 +70,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
         currentChart.data.labels = data.labels || [];
         currentChart.data.datasets = [];
-
+        const profitData = showSales ? data.value_sales : data.value_profit;
+        const notProfitData = showSales ? data.value_not_sales : data.value_not_profit;
+        const suffix = showSales ? " (шт)" : " (₽)";
         currentChart.data.datasets.push({
-            label: `Выкупили на сумму, ₽${inputSuffix}`,
-            data: data.value_profit || [],
+            label: `Выкупили${suffix}${inputSuffix}`,
+            data: profitData || [],
             backgroundColor: 'rgba(54, 162, 235, 0.5)',
             borderColor: 'rgba(54, 162, 235, 1)',
             borderWidth: 1
         });
 
         currentChart.data.datasets.push({
-            label: `Заказали на сумму, ₽${inputSuffix}`,
-            data: data.value_not_profit || [],
+            label: `Заказали${suffix}${inputSuffix}`,
+            data: notProfitData || [],
             backgroundColor: 'rgba(255, 99, 132, 0.5)',
             borderColor: 'rgba(255, 99, 132, 1)',
             borderWidth: 1
@@ -93,15 +104,17 @@ document.addEventListener("DOMContentLoaded", function () {
         updateChart();
     });
 
-    itemInput.addEventListener('input', () => {
+    itemInput.addEventListener('input', debounce(() => {
         const value = chartSelect.value;
         if (["chartDiz", "chartCategory", "chartGood"].includes(value)) {
             updateChart();
         }
-    });
+    }, 500));
+
+    let showSales = false;
 
     document.getElementById('toggleChart').addEventListener('click', function () {
-        currentChart.config.type = currentChart.config.type === 'bar' ? 'line' : 'bar';
-        currentChart.update();
+        showSales = !showSales;
+        updateChart();
     });
 });

@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Информация о товаре</title>
+    <link rel="stylesheet" href="{% static 'main/css/stylegood.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<header>
+    <nav class="container_section container">
+        <div class="nav_left">AlaStats</div>
+        <div class="nav_right">
+            <ul class="nav_list">
+                <li class="nav_list_item"><a href="{% url 'main' %}">Главная</a></li>
+                <li class="nav_list_item"><a href="{% url 'analytics' %}">Аналитика</a></li>
+                <li class="nav_list_item"><a href="{% url 'recomendations' %}">Рекомендации ИИ</a></li>
+                <li class="nav_list_item"><a href="{% url 'sells' %}">Продажи</a></li>
+                <li class="nav_list_item"><a href="{% url 'information' %}">Информация о товаре</a></li>
+                <li class="nav_list_item"><a href="{% url 'upload' %}">Загрузить файл</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<div class="container container_height">
+    <main class="main">
+
+        <form method="post" class="row search-row">
+            {% csrf_token %}
+            <input type="text" class="search-input" name="article" id="articleInput"
+                   placeholder="Введите артикул" value="{{ article }}" list="articleSuggestions">
+            <datalist id="articleSuggestions"></datalist>
+            <button type="submit" class="search-btn">Найти</button>
+        </form>
+
+        {% if cards %}
+
+        <div class="row cards-row row-4">
+            <div class="card">Наименование: {{ cards.0 }}</div>
+            <div class="card">Категория: {{ cards.1 }}</div>
+            <div class="card">Дизайнер: {{ cards.2 }}</div>
+            <div class="card">Средний рейтинг товара: {{ cards.3 }}</div>
+        </div>
+
+        <div class="row cards-row row-4">
+            <div class="card">Перешли, шт: {{ cards.4 }}</div>
+            <div class="card">Положили в корзину, шт: {{ cards.5 }}</div>
+            <div class="card">Заказали, шт: {{ cards.6 }}</div>
+            <div class="card">Выкупили, шт: {{ cards.7 }}</div>
+        </div>
+
+        <div class="row cards-row row-4">
+            <div class="card">Конверсия в корзину, %: {{ cards.8 }}</div>
+            <div class="card">Конверсия в заказ, %: {{ cards.9 }}</div>
+            <div class="card">Процент выкупа: {{ cards.10 }}</div>
+            <div class="card">Отменили, шт: {{ cards.11 }}</div>
+        </div>
+
+        <div class="row cards-row row-4">
+            <div class="card">Заказали, ₽: {{ cards.12 }}</div>
+            <div class="card">Положили в корзину, ₽: {{ cards.13 }}</div>
+            <div class="card">Выкупили, ₽: {{ cards.14 }}</div>
+            <div class="card">Выкупили (повторно), ₽: {{ cards.15 }}</div>
+        </div>
+
+        {% elif article %}
+            <p style="padding: 10px; color: red;">Ничего не найдено по артикулу "{{ article }}"</p>
+        {% endif %}
+    </main>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById("articleInput");
+    const datalist = document.getElementById("articleSuggestions");
+    let debounceTimer;
+
+    input.addEventListener("input", function () {
+        const query = this.value.trim();
+
+        clearTimeout(debounceTimer);
+        if (query.length < 2) return;
+
+        debounceTimer = setTimeout(() => {
+            fetch(`/api/autocomplete_goods/?term=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    datalist.innerHTML = "";
+                    data.forEach(article => {
+                        const option = document.createElement("option");
+                        option.value = article;
+                        datalist.appendChild(option);
+                    });
+                });
+        }, 300);
+    });
+});
+</script>
+<script src="{% static 'main/js/good_info.js' %}"></script>
+</body>
+</html>

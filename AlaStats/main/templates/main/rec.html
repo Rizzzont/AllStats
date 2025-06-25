@@ -18,6 +18,7 @@
                     <li class="nav_list_item"><a href="{% url 'analytics' %}">Аналитика</a></li>
                     <li class="nav_list_item"><a href="{% url 'recomendations' %}">Рекомендации ИИ</a></li>
                     <li class="nav_list_item"><a href="{% url 'sells' %}">Продажи</a></li>
+                    <li class="nav_list_item"><a href="{% url 'information' %}">Информация о товаре</a></li>
                     <li class="nav_list_item"><a href="{% url 'upload' %}">Загрузить файл</a></li>
         </ul>
       </div>
@@ -26,7 +27,6 @@
 
   <div class="container">
     <main class="ai-main-flex">
-      <!-- Левая колонка -->
       <div class="ai-col-left">
         <div class="ai-quick-templates">
           <b>Быстрые вопросы:</b>
@@ -47,7 +47,6 @@
           <span id="fileName"></span>
         </div>
       </div>
-      <!-- Правая колонка -->
       <div class="ai-col-right">
         <textarea class="ai-input" id="aiInput" placeholder="Введите ваш запрос"></textarea>
         <div class="button-row">
