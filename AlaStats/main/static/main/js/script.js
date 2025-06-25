@@ -46,17 +46,14 @@ function toggleMenu() {
     document.querySelector('.nav_right').classList.toggle('active');
 }
 
-// Открытие модального окна
 function openModal() {
     document.getElementById("loginModal").style.display = "block";
 }
 
-// Закрытие модального окна
 function closeModal() {
     document.getElementById("loginModal").style.display = "none";
 }
 
-// Закрытие окна при клике вне формы
 window.onclick = function(event) {
     let modal = document.getElementById("loginModal");
     if (event.target === modal) {
@@ -64,15 +61,13 @@ window.onclick = function(event) {
     }
 }
 
-// Обработчик формы входа
 document.getElementById("loginForm").addEventListener("submit", function(event) {
-    event.preventDefault(); // Останавливаем перезагрузку страницы
+    event.preventDefault();
 
     let email = document.getElementById("email").value;
     let password = document.getElementById("password").value;
     let errorMessage = document.getElementById("loginError");
 
-    // Простая проверка (можно заменить на реальную авторизацию через сервер)
     if (email === "admin@example.com" && password === "123456") {
         alert("Успешный вход!");
         closeModal();

@@ -258,8 +258,6 @@ def good_sum(sheet_dict: Dict[str, pd.DataFrame], article: Any) -> List[List[flo
     return [value_profit, value_not_profit]
 
 
-
-
 # По всем артикулам в листе/месяце
 def goods_sum(sheet_dict: Dict[str, pd.DataFrame]) -> List[List[float]]:
     value_profit = []

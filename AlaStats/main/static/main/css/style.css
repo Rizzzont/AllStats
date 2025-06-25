@@ -154,7 +154,6 @@ nav {
   background: #7a3ba8;
 }
 
-/* Графики */
 .graphs {
   display: flex;
   flex-wrap: wrap;
@@ -174,7 +173,6 @@ nav {
   text-align: center;
 }
 
-/* Цветовые модификаторы графиков */
 .graph_diz   { background: gray; }
 .graph_dizs  { background: rgb(228,213,51); }
 .graph_category  { background: rgb(92,48,202); }
@@ -182,7 +180,6 @@ nav {
 .graph_good      { background: rgb(44,192,110); }
 .graph_goods     { background: rgb(63,43,43); }
 
-/* Модальные окна */
 .modal {
   display: none;
   position: fixed;
@@ -235,7 +232,6 @@ nav {
   margin-top: 10px;
 }
 
-/* Адаптивность */
 @media (max-width: 1024px) {
   .container { max-width: 100%; padding: 0 20px; }
   .main { flex-direction: column; }

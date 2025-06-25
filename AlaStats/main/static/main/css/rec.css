@@ -108,13 +108,12 @@ nav {
 }
 
 .ai-quick-templates button:hover {
-  background: #c2a7e2; /* темнее при ховере */
+  background: #c2a7e2;
   color: #6b298a;
 }
 
-/* Блок ответа */
 .ai-response {
-  background: #f6f0fa; /* чуть фиолетовый */
+  background: #f6f0fa;
   border-radius: 10px;
   padding: 18px 16px;
   box-shadow: 0 1px 5px rgba(145, 72, 205, 0.10);
@@ -134,7 +133,6 @@ nav {
   color: #4b236a;
 }
 
-/* Кнопка отправки */
 .submit-btn {
   background: #9148cd;
   color: #fff;
@@ -165,7 +163,6 @@ nav {
   color: #6b298a;
 }
 
-/* Правая колонка */
 .ai-col-right {
   flex: 1.5;
   display: flex;
@@ -199,7 +196,6 @@ nav {
   margin-top: 5px;
 }
 
-/* Блок файлов */
 .file-and-actions {
   display: flex;
   align-items: center;
@@ -232,7 +228,6 @@ nav {
   white-space: nowrap;
 }
 
-/* --- ФУТЕР (цвета первого сайта) --- */
 .footer {
   background: #000;
   color: #fff;
@@ -246,7 +241,6 @@ nav {
   letter-spacing: 0.4px;
 }
 
-/* --- АДАПТИВНОСТЬ второго сайта, цвета и радиусы первого --- */
 @media (max-width: 900px) {
   .ai-main-flex {
     flex-direction: column;

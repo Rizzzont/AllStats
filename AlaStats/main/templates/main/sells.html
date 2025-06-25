@@ -24,7 +24,6 @@
 
 <div class="container">
   <main class="main">
-    <!-- Левая колонка -->
     <section class="main_left-wrapper">
       <div class="card">
         <h2 class="card-title">Продажи по тематикам</h2>
@@ -40,18 +39,16 @@
             <thead>
               <tr>
                 <th>Тематика</th>
-                <th>Продажи</th>
+                <th>Продажи, шт.</th>
               </tr>
             </thead>
             <tbody>
-              <!-- JS строки -->
             </tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- Правая колонка -->
     <section class="main_right-wrapper">
       <div class="main_graph">
         <h2 class="card-title">График продаж по тематикам</h2>
@@ -62,9 +59,7 @@
     </section>
   </main>
 </div>
-<!-- ...скрипты без изменений... -->
  <script>
-    /* ↓ ДАННЫЕ ДЛЯ ДЕМОНСТРАЦИИ (будут приходить из Python как JSON) ↓ */
 
 const dataFromJson = {{ data_json|safe }};
 
@@ -74,12 +69,11 @@ function fillTable(data) {
   const tbody = document.querySelector("#thematicTable tbody");
   tbody.innerHTML = "";
 
-  // Показываем только первые 100 строк
   data.slice(0, 100).forEach(row => {
     tbody.innerHTML += `
       <tr>
         <td>${row.theme}</td>
-        <td>${row.sales.toLocaleString('ru-RU')} ₽</td>
+        <td>${row.sales.toLocaleString('ru-RU')}</td>
       </tr>
     `;
   });
@@ -93,7 +87,6 @@ function filterTableRows() {
   drawChart(filteredData);
 }
 
-/* --- Отрисовка графика --- */
 function drawChart(data) {
   const ctx = document.getElementById('themeChart').getContext('2d');
 
@@ -132,8 +125,6 @@ function drawChart(data) {
 }
 
 
-
-/* --- Инициализация --- */
 fillTable(dataFromJson);
 drawChart(dataFromJson);
 </script>

@@ -60,9 +60,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const inputSuffix = userInput ? ` (${userInput})` : "";
 
         currentChart.data.labels = data.labels || [];
-        currentChart.data.datasets = []; // очищаем старые данные
+        currentChart.data.datasets = [];
 
-        // 1️⃣ Первый набор данных: "Выкупили"
         currentChart.data.datasets.push({
             label: `Выкупили на сумму, ₽${inputSuffix}`,
             data: data.value_profit || [],
@@ -71,7 +70,6 @@ document.addEventListener("DOMContentLoaded", function () {
             borderWidth: 1
         });
 
-        // 2️⃣ Второй набор данных: "Заказали"
         currentChart.data.datasets.push({
             label: `Заказали на сумму, ₽${inputSuffix}`,
             data: data.value_not_profit || [],

@@ -64,7 +64,6 @@
     </div>
   </footer>
 
-  <!-- Модальное окно для ответа -->
   <div id="dialogModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0007;z-index:9999;justify-content:center;align-items:center;">
     <div style="background:#fff;padding:2em;max-width:480px;width:90vw;border-radius:16px;box-shadow:0 2px 16px #0003;position:relative;">
       <span id="closeModal" style="position:absolute;right:1em;top:1em;cursor:pointer;font-size:24px;">&times;</span>
@@ -73,7 +72,6 @@
     </div>
   </div>
 
-  <!-- Скрипты -->
   <script>
     function setTemplate(text) {
       document.getElementById('aiInput').value = text;
@@ -127,7 +125,6 @@
       });
     }
 
-    // Модальное окно
     document.getElementById('closeModal').onclick = () => {
       document.getElementById('dialogModal').style.display = 'none';
     };

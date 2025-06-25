@@ -73,7 +73,6 @@
         </div>
     </div>
     <script>
-        // Пример "JSON файла"
         const jsonData = [
             {
                 "name": "Продажи",
@@ -92,7 +91,6 @@
             }
         ];
 
-        // Заполнение select
         const select = document.getElementById('selectDataset');
         jsonData.forEach((item, idx) => {
             const option = document.createElement('option');
@@ -101,7 +99,6 @@
             select.appendChild(option);
         });
 
-        // Chart.js
         const ctx = document.getElementById('myBarChart').getContext('2d');
         let chart = null;
 

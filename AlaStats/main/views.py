@@ -3,21 +3,18 @@ import os
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
+from django.conf import settings
 import json
 import pickle
 from django.http import JsonResponse
 import requests
-
 from django.views.decorators.csrf import csrf_exempt
-
 from main.functions import (main_info, main_analytic, designer_sum, designers_sum, category_sum,
                             categories_sum, good_sum, goods_sum, last)
 import pandas as pd
 import tempfile
+import os, zipfile
 
-import os, zipfile, pandas as pd
-from django.shortcuts import render, redirect
-from django.conf import settings
 
 def upload_excel(request):
     if request.method == "POST" and request.FILES.get("file"):
@@ -31,10 +28,9 @@ def upload_excel(request):
             for chunk in uploaded_file.chunks():
                 f.write(chunk)
 
-        # Оптимизированное чтение
         xls = pd.ExcelFile(excel_path)
         all_sheets = {
-            name: xls.parse(name)  # можно добавить usecols/nrows при необходимости
+            name: xls.parse(name)
             for name in xls.sheet_names
         }
 
@@ -55,7 +51,6 @@ def main(request):
     with open(path, "rb") as f:
         sheet_dict = pickle.load(f)
 
-    combined_df = pd.concat(sheet_dict.values(), ignore_index=True)
     summary = main_info(sheet_dict)
     charts = main_analytic(sheet_dict)
 
@@ -70,7 +65,6 @@ def main(request):
         "data_loaded": True
     })
 
-# Загрузка данных из pkl файла
 def load_sheet_dict(request):
     data_path = request.session.get("data_path")
     if not data_path or not os.path.exists(data_path):
@@ -82,7 +76,7 @@ def load_sheet_dict(request):
 def analytics_view(request):
     return render(request, "main/anal.html")
 
-# API для получения данных графика
+
 def analytics_api(request):
     if request.method != "GET":
         return JsonResponse({"error": "Ожидался GET-запрос"}, status=400)
@@ -93,7 +87,6 @@ def analytics_api(request):
     if func == "default" or not func:
         return JsonResponse({"labels": [], "values": []})
 
-    # Загрузка данных из pickle
     data_path = request.session.get("data_path")
     if not data_path or not os.path.exists(data_path):
         return JsonResponse({"error": "Нет данных"}, status=400)
@@ -161,7 +154,6 @@ def sells(request):
 def custom_404_view(request, exception):
     return render(request, 'main/404.html', status=404)
 
-# Удаление данных
 def delete_data(request):
     path = request.session.get("data_path")
     if path and os.path.exists(path):
