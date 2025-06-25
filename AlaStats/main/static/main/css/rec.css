@@ -283,3 +283,23 @@ nav {
   text-align: center;
   padding: 10px 0;
 }
+
+.response-text {
+  white-space: pre-line;
+  font-size: 1.02rem;
+  color: #4b236a;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 4px;
+  transition: border 0.18s;
+}
+.response-text::-webkit-scrollbar {
+  width: 8px;
+}
+.response-text::-webkit-scrollbar-thumb {
+  background: #c2a7e2;
+  border-radius: 4px;
+}
+
+
+
